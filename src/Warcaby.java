@@ -26,8 +26,8 @@ public class Warcaby extends Application {
         Rectangle[][] cellRectangle = new Rectangle[8][8];
         Group cells = new Group();
 
-        Image black = new Image(new FileInputStream("black.png"));
-        Image white = new Image(new FileInputStream("white.png"));
+        Image black = new Image(new FileInputStream("resources/black.png"));
+        Image white = new Image(new FileInputStream("resources/white.png"));
         ImageView[] imageViewBlack = new ImageView[12];;
         ImageView[] imageViewWhite = new ImageView[12];
 
@@ -42,7 +42,7 @@ public class Warcaby extends Application {
 
         squaresSize = (int) (scene.getHeight() - 2 * y0) / 8;
 
-        System.out.println(squaresSize);
+//        System.out.println(squaresSize);
 
         // Rysowanie pól
         for (int i = 0; i < 8; i++) {
