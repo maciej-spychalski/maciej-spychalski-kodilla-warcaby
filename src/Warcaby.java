@@ -19,10 +19,6 @@ import java.io.FileNotFoundException;
 
 public class Warcaby extends Application {
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
         Group root = new Group();
@@ -32,12 +28,9 @@ public class Warcaby extends Application {
 
         Image black = new Image(new FileInputStream("black.png"));
         Image white = new Image(new FileInputStream("white.png"));
-//        Image black = new Image(new FileInputStream("Brown_piece.png"));
-//        Image white = new Image(new FileInputStream("Grey_piece.png"));
-//        Image blackCrown = new Image(new FileInputStream("Brown_piece_with_crown.png"));
-//        Image whiteCrown = new Image(new FileInputStream("Grey_piece_with_crown.png"));
         ImageView[] imageViewBlack = new ImageView[12];;
         ImageView[] imageViewWhite = new ImageView[12];
+
         for (int i=0; i<12; i++) {
             imageViewBlack[i] = new ImageView(black);
             imageViewWhite[i] = new ImageView(white);
@@ -49,7 +42,7 @@ public class Warcaby extends Application {
 
         squaresSize = (int) (scene.getHeight() - 2 * y0) / 8;
 
-        //System.out.println(squaresSize);
+        System.out.println(squaresSize);
 
         // Rysowanie pól
         for (int i = 0; i < 8; i++) {
@@ -61,6 +54,7 @@ public class Warcaby extends Application {
                 cells.getChildren().add(cellRectangle[i][j]);
             }
         }
+
         root.getChildren().add(cells);
 
         // Rysowanie pionków
@@ -156,6 +150,11 @@ public class Warcaby extends Application {
                 }
                 if (ix < 8 && iy < 8)
                     System.out.println("Zazanaczyłeś pole : " + Character.toString((char) (65 + ix)) + (iy + 1));
+
+                // Test przesuwania pionka
+                imageViewWhite[11].setX(x0 + 6 * squaresSize);
+                imageViewWhite[11].setY(y0 + 3 * squaresSize);
+
             }
         });
 
@@ -173,6 +172,23 @@ public class Warcaby extends Application {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("Start gry");
+
+                // Resetowanie połozenia pionków
+                int pionWhite = 0;
+                int pionBlack = 0;
+                for(int i = 0; i<8; i++)
+                    for(int j = 0; j<3; j++) {
+                        if ((i+j)%2 != 0) {
+                            imageViewWhite[pionWhite].setX(x0 + i * squaresSize);
+                            imageViewWhite[pionWhite].setY(y0 + j * squaresSize);
+                            pionWhite++;
+                        }
+                        else {
+                            imageViewBlack[pionBlack].setX(x0 + i * squaresSize);
+                            imageViewBlack[pionBlack].setY(y0 + (j + 5) * squaresSize);
+                            pionBlack++;
+                        }
+                    }
             }
         });
 
