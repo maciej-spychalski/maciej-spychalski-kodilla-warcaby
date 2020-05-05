@@ -61,21 +61,21 @@ public class Warcaby extends Application {
         root.getChildren().add(cells);
 
         // Rysowanie pionków
-        int pionWhite = 0;
-        int pionBlack = 0;
+        int pawnWhite = 0;
+        int pawnBlack = 0;
         for(int i = 0; i < 8; i++)
             for(int j = 0; j < 3; j++) {
                 if ((i + j) % 2 != 0) {
-                    imageViewWhite[pionWhite].setX(x0 + i * squaresSize);
-                    imageViewWhite[pionWhite].setY(y0 + j * squaresSize);
-                    root.getChildren().add(imageViewWhite[pionWhite]);
-                    pionWhite++;
+                    imageViewWhite[pawnWhite].setX(x0 + i * squaresSize);
+                    imageViewWhite[pawnWhite].setY(y0 + j * squaresSize);
+                    root.getChildren().add(imageViewWhite[pawnWhite]);
+                    pawnWhite++;
                 }
                 else {
-                    imageViewBlack[pionBlack].setX(x0 + i * squaresSize);
-                    imageViewBlack[pionBlack].setY(y0 + (j + 5) * squaresSize);
-                    root.getChildren().add(imageViewBlack[pionBlack]);
-                    pionBlack++;
+                    imageViewBlack[pawnBlack].setX(x0 + i * squaresSize);
+                    imageViewBlack[pawnBlack].setY(y0 + (j + 5) * squaresSize);
+                    root.getChildren().add(imageViewBlack[pawnBlack]);
+                    pawnBlack++;
                 }
             }
 
