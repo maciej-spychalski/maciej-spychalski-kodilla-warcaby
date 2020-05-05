@@ -19,6 +19,10 @@ import java.io.FileNotFoundException;
 
 public class Warcaby extends Application {
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
         Group root = new Group();
@@ -63,21 +67,21 @@ public class Warcaby extends Application {
         // Rysowanie pionków
         int pawnWhite = 0;
         int pawnBlack = 0;
-        for(int i = 0; i < 8; i++)
-            for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 8; i++) {
+            for (int j = 0; j < 3; j++) {
                 if ((i + j) % 2 != 0) {
                     imageViewWhite[pawnWhite].setX(x0 + i * squaresSize);
                     imageViewWhite[pawnWhite].setY(y0 + j * squaresSize);
                     root.getChildren().add(imageViewWhite[pawnWhite]);
                     pawnWhite++;
-                }
-                else {
+                } else {
                     imageViewBlack[pawnBlack].setX(x0 + i * squaresSize);
                     imageViewBlack[pawnBlack].setY(y0 + (j + 5) * squaresSize);
                     root.getChildren().add(imageViewBlack[pawnBlack]);
                     pawnBlack++;
                 }
             }
+        }
 
         // linnie planszy
         Line[] lineH = new Line[9];
@@ -186,19 +190,19 @@ public class Warcaby extends Application {
                 // Resetowanie połozenia pionków
                 int pionWhite = 0;
                 int pionBlack = 0;
-                for(int i = 0; i < 8; i++)
-                    for(int j = 0; j < 3; j++) {
+                for(int i = 0; i < 8; i++) {
+                    for (int j = 0; j < 3; j++) {
                         if ((i + j) % 2 != 0) {
                             imageViewWhite[pionWhite].setX(x0 + i * squaresSize);
                             imageViewWhite[pionWhite].setY(y0 + j * squaresSize);
                             pionWhite++;
-                        }
-                        else {
+                        } else {
                             imageViewBlack[pionBlack].setX(x0 + i * squaresSize);
                             imageViewBlack[pionBlack].setY(y0 + (j + 5) * squaresSize);
                             pionBlack++;
                         }
                     }
+                }
             }
         });
 
