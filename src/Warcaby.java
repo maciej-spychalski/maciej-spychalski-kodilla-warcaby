@@ -26,16 +26,19 @@ public class Warcaby extends Application {
         Rectangle[][] cellRectangle = new Rectangle[8][8];
         Group cells = new Group();
 
-        Image black = new Image(new FileInputStream("resources/black.png"));
-        Image white = new Image(new FileInputStream("resources/white.png"));
+//        Image black = new Image(new FileInputStream("resources/black.png"));
+        Image black = new Image("file:resources/black.png");
+//        Image white = new Image(new FileInputStream("resources/white.png"));
+        Image white = new Image("file:resources/white.png");
         ImageView[] imageViewBlack = new ImageView[12];;
         ImageView[] imageViewWhite = new ImageView[12];
 
-        for (int i=0; i<12; i++) {
+        for (int i = 0; i < 12; i++) {
             imageViewBlack[i] = new ImageView(black);
             imageViewWhite[i] = new ImageView(white);
         }
 
+        // Odległość od krawędzi
         int x0 = 40;
         int y0 = 40;
         int squaresSize;
@@ -60,9 +63,9 @@ public class Warcaby extends Application {
         // Rysowanie pionków
         int pionWhite = 0;
         int pionBlack = 0;
-        for(int i = 0; i<8; i++)
-            for(int j = 0; j<3; j++) {
-                if ((i+j)%2 != 0) {
+        for(int i = 0; i < 8; i++)
+            for(int j = 0; j < 3; j++) {
+                if ((i + j) % 2 != 0) {
                     imageViewWhite[pionWhite].setX(x0 + i * squaresSize);
                     imageViewWhite[pionWhite].setY(y0 + j * squaresSize);
                     root.getChildren().add(imageViewWhite[pionWhite]);
@@ -124,40 +127,6 @@ public class Warcaby extends Application {
         statement.setFont(Font.font(24));
         root.getChildren().add(statement);
 
-        // Obsługa położenia myszki
-        scene.addEventFilter(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                int ix = 0;
-                int iy = 0;
-                if (mouseEvent.getX() > 10 && mouseEvent.getY() > 50) {
-                    ix = ((int) mouseEvent.getX() - x0) / squaresSize;
-                    iy = ((int) mouseEvent.getY() - y0) / squaresSize;
-                }
-                if (ix < 8 && iy < 8) statement.setText("Pole: " + Character.toString((char) (65 + ix)) + (iy + 1));
-            }
-        });
-
-        // Obsługa naciśnieńcia przycisku myszki
-        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                int ix = 0;
-                int iy = 0;
-                if (mouseEvent.getX() > 10 && mouseEvent.getY() > 50) {
-                    ix = ((int) mouseEvent.getX() - x0) / squaresSize;
-                    iy = ((int) mouseEvent.getY() - y0) / squaresSize;
-                }
-                if (ix < 8 && iy < 8)
-                    System.out.println("Zazanaczyłeś pole : " + Character.toString((char) (65 + ix)) + (iy + 1));
-
-                // Test przesuwania pionka
-                imageViewWhite[11].setX(x0 + 6 * squaresSize);
-                imageViewWhite[11].setY(y0 + 3 * squaresSize);
-
-            }
-        });
-
         // Przycisk start
         Button startBtn = new Button();
         startBtn.setText("Start");
@@ -168,6 +137,47 @@ public class Warcaby extends Application {
         startBtn.setPrefHeight(60);
         root.getChildren().add(startBtn);
 
+        primaryStage.setTitle("Warcaby");
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.show();
+
+        // Obsługa położenia myszki
+        scene.addEventFilter(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                int ix = 0;
+                int iy = 0;
+                if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8*squaresSize) &&
+                        mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8*squaresSize)) {
+                    ix = ((int) mouseEvent.getX() - x0) / squaresSize;
+                    iy = ((int) mouseEvent.getY() - y0) / squaresSize;
+                    statement.setText("Pole: " + Character.toString((char) (65 + ix)) + (iy + 1));
+                } else {
+                    statement.setText("");
+                }
+            }
+        });
+
+        // Obsługa naciśnieńcia przycisku myszki
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                int ix = 0;
+                int iy = 0;
+                if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8*squaresSize) &&
+                        mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8*squaresSize)) {
+                    ix = ((int) mouseEvent.getX() - x0) / squaresSize;
+                    iy = ((int) mouseEvent.getY() - y0) / squaresSize;
+                    System.out.println("Zazanaczyłeś pole : " + Character.toString((char) (65 + ix)) + (iy + 1));
+
+                    // Test przesuwania pionka
+                    imageViewWhite[11].setX(x0 + 6 * squaresSize);
+                    imageViewWhite[11].setY(y0 + 3 * squaresSize);
+                }
+            }
+        });
+
         startBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -176,9 +186,9 @@ public class Warcaby extends Application {
                 // Resetowanie połozenia pionków
                 int pionWhite = 0;
                 int pionBlack = 0;
-                for(int i = 0; i<8; i++)
-                    for(int j = 0; j<3; j++) {
-                        if ((i+j)%2 != 0) {
+                for(int i = 0; i < 8; i++)
+                    for(int j = 0; j < 3; j++) {
+                        if ((i + j) % 2 != 0) {
                             imageViewWhite[pionWhite].setX(x0 + i * squaresSize);
                             imageViewWhite[pionWhite].setY(y0 + j * squaresSize);
                             pionWhite++;
@@ -192,9 +202,6 @@ public class Warcaby extends Application {
             }
         });
 
-        primaryStage.setTitle("Warcaby");
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
+
     }
 }
