@@ -13,13 +13,13 @@ public class Pawn {
     private int posY;
 
     public static Image black = new Image("file:resources/black.png");
-    public static Image blackSelected = new Image("file:resources/Brown_piece.png");
-    public static Image blackCrownhead = new Image("file:resources/Brown_piece_with_crown.png");
-    public static Image blackCrownheadSelected = new Image("file:resources/black.png");
+    public static Image blackSelected = new Image("file:resources/black_selected.png");
+    public static Image blackCrownhead = new Image("file:resources/black_piece_with_crown.png");
+    public static Image blackCrownheadSelected = new Image("file:resources/black_piece_with_crown_selected.png");
     public static Image white = new Image("file:resources/white.png");
-    public static Image whiteSelected = new Image("file:resources/Grey_piece.png");
-    public static Image whiteCrownhead = new Image("file:resources/Grey_piece_with_crown.png");
-    public static Image whiteCrownheadSelected = new Image("file:resources/white.png");
+    public static Image whiteSelected = new Image("file:resources/white_selected.png");
+    public static Image whiteCrownhead = new Image("file:resources/white_piece_with_crown.png");
+    public static Image whiteCrownheadSelected = new Image("file:resources/white_piece_with_crown_selected.png");
 
     public Pawn (int id, boolean active, boolean crownhead, boolean selected, Image image, int posX, int posY) {
         this.id = id;

@@ -235,16 +235,16 @@ public class Warcaby extends Application {
                     iy = ((int) mouseEvent.getY() - y0) / squaresSize;
                     System.out.println("Zazanaczyłeś pole : " + Character.toString((char) (65 + ix)) + (iy + 1));
 
-                    // Test przesuwania pionka
-                    game.pawnSelect(ix,iy);
-                    drawPawns();
-                    textArea.setText(game.getListOfMovements());
+                    // Przesuwanie pionka
+                    if (game.isGameInProgress()) {
+                        game.pawnSelect(ix,iy);
+                        drawPawns();
+                        textArea.setText(game.getListOfMovements());
+                    }
+
                 }
             }
         });
-
-
-
 
     }
 }
