@@ -1,5 +1,5 @@
-import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
+
 
 public class Game {
     private Pawn[] pawnsWhite = new Pawn[12];
@@ -38,7 +38,7 @@ public class Game {
         pawnsStartPosition();
 
         // przypadki testowe
-        boardTableTestCase(7);
+        boardTableTestCase(8);
     }
 
     private void setAllowedPawnsPositions() {
@@ -239,6 +239,34 @@ public class Game {
                 pawnsBlack[24 - 13].setActive(false);
                 numberPawnsBlack -= 7;
                 break;
+            case 8:
+                // wszystkie czarne możliwe do zbicia
+                boardTable[0][5] = 0;
+                pawnsBlack[13 - 13].setActive(false);
+                boardTable[0][7] = 0;
+                pawnsBlack[14 - 13].setActive(false);
+                boardTable[2][7] = 0;
+                pawnsBlack[15 - 13].setActive(false);
+                boardTable[1][6] = 0;
+                pawnsBlack[16 - 13].setActive(false);
+                boardTable[2][5] = 0;
+                pawnsBlack[17 - 13].setActive(false);
+                boardTable[4][5] = 0;
+                pawnsBlack[18 - 13].setActive(false);
+                boardTable[3][6] = 0;
+                pawnsBlack[19 - 13].setActive(false);
+                boardTable[4][7] = 0;
+                pawnsBlack[20 - 13].setActive(false);
+                boardTable[6][7] = 0;
+                pawnsBlack[23 - 13].setActive(false);
+                boardTable[7][6] = 0;
+                pawnsBlack[24 - 13].setActive(false);
+                numberPawnsBlack -= 10;
+                boardTable[5][2] = 0;
+                boardTable[4][5] = 9;
+                pawnsWhite[9 - 1].setPosX(4);
+                pawnsWhite[9 - 1].setPosY(5);
+                break;
         }
         printBoard("BoardTable", boardTable);
         System.out.println();
@@ -250,15 +278,19 @@ public class Game {
     public void pawnSelect(int posX, int posY) {
         int currentField = boardTable[posX][posY];
 
+//        printBoard("BoardTable", boardTable);
+//        System.out.println();
+//        printBoard("LogicBoardTable", logic.getLogicBoardTable());
+        System.out.println();
         System.out.println("X=" + posX + " Y=" + posY);
         System.out.println("Pion " + currentField);
+
 
         // Zaznaczanie/odznaczanie piona
         if (currentField > 0 && currentField < 13 && !moveInProgress) {
             // jesli pion nie jest jeszcze zaznaczony i nie ma obowiązku ruchu innym pionem
             if (!pawnsWhite[currentField - 1].isSelected() &&
                     !logic.isOtherPawnMustBeMove(WHITE_PAWN, posX, posY) && !moveInProgress) {
-
                 pawnsWhite[currentField - 1].setSelected(true);
                 PawnSelected = currentField;
                 System.out.println("Pion " + currentField + " zaznaczony");
@@ -322,6 +354,7 @@ public class Game {
         pawnsWhite[PawnSelected - 1].setSelected(false);
         if (pawnsWhite[PawnSelected - 1].getPosY() == 7) {
             pawnsWhite[PawnSelected - 1].setCrownhead(true);
+            createLogicBoardTable();
         }
         ;
         PawnSelected = 0;
