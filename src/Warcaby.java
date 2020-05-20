@@ -94,12 +94,14 @@ public class Warcaby extends Application {
     public void creatGameInterface() {
         // Pole historii posunięć
         textArea.setEditable(false);
-        textArea.setFont(Font.font(16));
+        textArea.setFont(Font.font(14));
         textArea.setLayoutX(590);
         textArea.setLayoutY(40);
         textArea.setPrefHeight(340);
         textArea.setPrefWidth(180);
         textArea.setText(game.getListOfMovements());
+        //textArea.setScrollTop(Double.MAX_VALUE);
+
         root.getChildren().add(textArea);
 
         // pole komunikatów
@@ -168,7 +170,6 @@ public class Warcaby extends Application {
                 imageViewBlack[i].visibleProperty().set(false);
             }
 
-            textArea.setText("");
         }
     }
 
@@ -244,8 +245,12 @@ public class Warcaby extends Application {
                             drawPawns();
                             textArea.setText(game.getListOfMovements());
                         }
-                    }
 
+                    }
+                    textArea.positionCaret(textArea.getText().length());
+                    textArea.setEditable(true);
+                    textArea.deselect();
+                    textArea.setScrollTop(Double.MAX_VALUE);
                 }
             }
         });
