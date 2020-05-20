@@ -13,6 +13,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
 import java.io.FileNotFoundException;
 
 public class Warcaby extends Application {
@@ -33,7 +34,7 @@ public class Warcaby extends Application {
     private int squaresSize = (int) (scene.getHeight() - 2 * y0) / 8;
 
     public static void main(String[] args) {
-         launch(args);
+        launch(args);
     }
 
     public void creatBoard() {
@@ -93,14 +94,11 @@ public class Warcaby extends Application {
     public void creatGameInterface() {
         // Pole historii posunięć
         textArea.setEditable(false);
-        textArea.setFont(Font.font(20));
+        textArea.setFont(Font.font(16));
         textArea.setLayoutX(590);
         textArea.setLayoutY(40);
         textArea.setPrefHeight(340);
         textArea.setPrefWidth(180);
-//        textArea.setText("d2-b4    a5-c3\nd2-b4    a5-c3\nd2-b4    a5-c3\nd2-b4    a5-c3\n" +
-//                "d2-b4    a5-c3\nd2-b4    a5-c3\nd2-b4    a5-c3\nd2-b4    a5-c3\n" +
-//                "d2-b4    a5-c3\nd2-b4    a5-c3\nd2-b4    a5-c3\nd2-b4    a5-c3\n");
         textArea.setText(game.getListOfMovements());
         root.getChildren().add(textArea);
 
@@ -124,7 +122,7 @@ public class Warcaby extends Application {
         Pawn[] pawnsWhite = game.getPawnsWhite();
         Pawn[] pawnsBlack = game.getPawnsBlack();
 
-        for(int i = 0; i < 12; i++) {
+        for (int i = 0; i < 12; i++) {
 
             if (pawnsWhite[i].isActive()) {
                 imageViewWhite[i].visibleProperty().set(true);
@@ -201,6 +199,7 @@ public class Warcaby extends Application {
                 System.out.println("Start gry");
                 // Resetowanie połozenia pionków
                 game.pawnsStartPosition();
+
                 drawPawns();
             }
         });
@@ -211,8 +210,8 @@ public class Warcaby extends Application {
             public void handle(MouseEvent mouseEvent) {
                 int ix = 0;
                 int iy = 0;
-                if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8*squaresSize) &&
-                        mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8*squaresSize)) {
+                if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8 * squaresSize) &&
+                        mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8 * squaresSize)) {
                     ix = ((int) mouseEvent.getX() - x0) / squaresSize;
                     iy = ((int) mouseEvent.getY() - y0) / squaresSize;
                     statement.setText("Pole: " + Character.toString((char) (65 + ix)) + (iy + 1));
@@ -229,17 +228,22 @@ public class Warcaby extends Application {
             public void handle(MouseEvent mouseEvent) {
                 int ix = 0;
                 int iy = 0;
-                if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8*squaresSize) &&
-                        mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8*squaresSize)) {
+                if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8 * squaresSize) &&
+                        mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8 * squaresSize)) {
                     ix = ((int) mouseEvent.getX() - x0) / squaresSize;
                     iy = ((int) mouseEvent.getY() - y0) / squaresSize;
                     System.out.println("Zazanaczyłeś pole : " + Character.toString((char) (65 + ix)) + (iy + 1));
 
                     // Przesuwanie pionka
                     if (game.isGameInProgress()) {
-                        game.pawnSelect(ix,iy);
+                        game.pawnSelect(ix, iy);
                         drawPawns();
                         textArea.setText(game.getListOfMovements());
+                        if (game.isComputerMove() && game.isGameInProgress()) {
+                            game.computerMove();
+                            drawPawns();
+                            textArea.setText(game.getListOfMovements());
+                        }
                     }
 
                 }

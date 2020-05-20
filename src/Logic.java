@@ -1,25 +1,3 @@
-// Gra
-// Sprawdzenie czy gra nie jest zakończona
-
-// Gracz
-// 1. Sprawdzenie czy gracz nie ma przymusowego bicia
-// 2. Sprawdzenie czy gracz może wykonać dany ruch
-// 3. Ponowne sprawdzenie czy nie ma przymusowego bicia (czy nie jest to bicie wielokrotne
-// 4. Powtarzanie punktów 2,3 aż do zakończenia ruchu
-// 5. Sprawdzenie czy pion nie zmienił się na damkę
-// 6. Zmiana statusu ruchu na zakończony i przepisanie aktualnej tablicy położeń pionów do tablicy przechowującej
-//    zatwierdzony stan gry
-
-// Komputer
-// 1. Sprawdzenie czy komputer nie ma przymusowego bicia
-// 2. Jeżeli jest przymusowe bicie - rozpatrzenie najlepszego wyboru - algorytm min-max z uwzględnieniem
-//    bicia wielokrotnego, możliwości uzyskania damki, obrony swoich pozycji, ....
-// 3. Sprawdzenie wszystkich możliwych pusunięć komputera i wybranie najlepszego - algorytm min-max, z uwzględnieniem
-//    bicia wielokrotnego, możliwości uzyskania damki, obrony swoich pozycji, ....
-// 4. Sprawdzenie czy pion nie zmienił się na damkę
-// 5. Zmiana statusu ruchu na zakończony i przepisanie aktualnej tablicy położeń pionów do tablicy przechowującej
-//    zatwierdzony stan gry
-
 //         Y\X   0   1   2   3   4   5   6   7   8
 //              (A) (B) (C) (D) (E) (F) (G) (H) (I)
 //        0 (1)|   |   |   |   |   |   |   |   |   |
@@ -44,13 +22,14 @@
 //                 SW   S   SE
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import static java.lang.Math.*;
 
 public class Logic {
 
     private int[][] logicBoardTable;
-    private ArrayList<Movement> movements;
     private final int FREE_FIELD = 0;
     private final int WHITE_PAWN = 1;
     private final int WHITE_CROWNHEAD = 2;
@@ -66,11 +45,10 @@ public class Logic {
     private int MAX_Y;
 
     public Logic(int boardSize) {
-        this.boardSize = boardSize - 1;
-        MAX_X = this.boardSize;
-        MAX_Y = this.boardSize;
+        this.boardSize = boardSize;
+        MAX_X = this.boardSize - 1;
+        MAX_Y = this.boardSize - 1;
         logicBoardTable = new int[boardSize][boardSize];
-        movements = new ArrayList<>();
     }
 
     public void setLogicBoardTable(int[][] logicBoardTable) {
@@ -81,103 +59,88 @@ public class Logic {
         return logicBoardTable;
     }
 
-    public ArrayList<Movement> moveAllowed(int startPosX, int startPosY, int stopPosX, int stopPosY) {
-//        System.out.println("\n\n***Testowanie czy dany ruch jest dozwolony***");
-//        {
-//            System.out.println("\nmoveAllowed: Dane wejściowe");
-//            System.out.println("moveAllowed: startPosX = " + startPosX);
-//            System.out.println("moveAllowed: startPosY = " + startPosY);
-//            System.out.println("moveAllowed: stopPosX = " + stopPosX);
-//            System.out.println("moveAllowed: stopPosY = " + stopPosY);
-//            System.out.println("\nmoveAllowed: Dane wynikowe");
-//        }
+    public List<Movement> moveAllowed(int startPosX, int startPosY, int stopPosX, int stopPosY) {
 
-        movements.clear();
+        List<Movement> moveAllowedTable = new ArrayList<>();
         int crossingX = NO_CROSSING;
         int crossingY = NO_CROSSING;
 
         // If final field isn't free
         if (logicBoardTable[stopPosX][stopPosY] != FREE_FIELD) {
-//             System.out.println("moveAllowed: Końcowe pole jest zajęte");
-            return new ArrayList<>(movements);
+            return new ArrayList<>(moveAllowedTable);
         }
 
-        int pawn = logicBoardTable[startPosX][startPosY];
+        // If final field is out of board
+        if (stopPosX < 0 || stopPosX > MAX_X || stopPosY < 0 || stopPosY > MAX_Y) {
+            return new ArrayList<>(moveAllowedTable);
+        }
+
+        int pawnColor = logicBoardTable[startPosX][startPosY];
 
         int direction = -1;
 
         if (startPosX > stopPosX && startPosY > stopPosY) {
-//             System.out.println("moveAllowed: Badany jest ruch w kierunku NW");
             direction = NORTH_WEST;
+            crossingX = stopPosX + 1;
+            crossingY = stopPosY + 1;
         }
         if (startPosX < stopPosX && startPosY > stopPosY) {
-//             System.out.println("moveAllowed: Badany jest ruch w kierunku NE");
             direction = NORTH_EAST;
+            crossingX = stopPosX - 1;
+            crossingY = stopPosY + 1;
         }
         if (startPosX < stopPosX && startPosY < stopPosY) {
-//             System.out.println("moveAllowed: Badany jest ruch w kierunku SE");
             direction = SOUTH_EAST;
+            crossingX = stopPosX - 1;
+            crossingY = stopPosY - 1;
         }
         if (startPosX > stopPosX && startPosY < stopPosY) {
-//             System.out.println("moveAllowed: Badany jest ruch w kierunku SW");
             direction = SOUTH_WEST;
+            crossingX = stopPosX + 1;
+            crossingY = stopPosY - 1;
         }
 
         int distance = abs(startPosX - stopPosX);
 
         // Movement of pawn without capture
         if ((distance == 1) && isFreeFields(startPosX, startPosY, direction, distance)) {
-            if (pawn == WHITE_PAWN && (direction == SOUTH_WEST || direction == SOUTH_EAST)) {
-//                System.out.println("moveAllowed: Biały pion ma możliwość ruchu w kierunku SW lub SE\n");
-                movements.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
-//                System.out.println("movements = " + movements.size());
-                return new ArrayList<>(movements);
+            if (pawnColor == WHITE_PAWN && (direction == SOUTH_WEST || direction == SOUTH_EAST)) {
+                moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, NO_CROSSING, NO_CROSSING));
+                return new ArrayList<>(moveAllowedTable);
             }
-            if (pawn == BLACK_PAWN && (direction == NORTH_WEST || direction == NORTH_EAST)) {
-//                 System.out.println("moveAllowed: Czarny pion ma możliwość ruchu w kierunku NW lub NE\n");
-                movements.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
-                return new ArrayList<>(movements);
+            if (pawnColor == BLACK_PAWN && (direction == NORTH_WEST || direction == NORTH_EAST)) {
+                moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, NO_CROSSING, NO_CROSSING));
+                return new ArrayList<>(moveAllowedTable);
             }
         }
 
         // Movement of pawn with capture
         if ((distance == 2) && isOpponentsPawn(startPosX, startPosY, direction, (distance - 1))) {
-//             System.out.println("moveAllowed: Badany pion biały/czarny ma możliwość ruchu z biciem\n");
-            movements.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
-            return new ArrayList<>(movements);
+            moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
+            return new ArrayList<>(moveAllowedTable);
         }
 
         // Movement of crownhead without capture
-        if ((pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &
+        if ((pawnColor == WHITE_CROWNHEAD || pawnColor == BLACK_CROWNHEAD) &
                 isFreeFields(startPosX, startPosY, direction, (distance - 1))) {
-//             System.out.println("moveAllowed: Badana damka biała/czarna ma możliwość ruchu bez bicia\n");
-            movements.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
-            return new ArrayList<>(movements);
+            moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, NO_CROSSING, NO_CROSSING));
+            return new ArrayList<>(moveAllowedTable);
         }
 
         // Movement of crownhead with capture
-        if ((pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &
+        if ((pawnColor == WHITE_CROWNHEAD || pawnColor == BLACK_CROWNHEAD) &
                 isFreeFields(startPosX, startPosY, direction, (distance - 2)) &
                 isOpponentsPawn(startPosX, stopPosY, direction, (distance - 1))) {
-//             System.out.println("moveAllowed: Badana damka biała/czarna ma możliwość ruchu z biciem\n");
-            movements.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
-            return new ArrayList<>(movements);
+            moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
+            return new ArrayList<>(moveAllowedTable);
         }
 
-//         System.out.println("moveAllowed: Niedozwolony ruch pionka/damki\n");
-        return new ArrayList<>(movements);
+        return new ArrayList<>(moveAllowedTable);
     }
 
-    public ArrayList<Movement> pawnPossibleCaptures(int startPosX, int startPosY) {
-        // Zwrócenie tablicy możliwych bijących ruchów danego piona
-//         System.out.println("***Testowanie czy pion ma bicie***");
-//        {
-//             System.out.println("\npawnPossibleCaptures: Dane wejściowe");
-//             System.out.println("pawnPossibleCaptures: startPosX = " + startPosX);
-//             System.out.println("pawnPossibleCaptures: startPosY = " + startPosY);
-//             System.out.println("\npawnPossibleCaptures: Dane wynikowe");
-//        }
-        movements.clear();
+    public List<Movement> pawnPossibleCaptures(int startPosX, int startPosY) {
+
+        List<Movement> pawnPossibleCapturesTable = new ArrayList<>();
         int crossingX = NO_CROSSING;
         int crossingY = NO_CROSSING;
 
@@ -188,94 +151,70 @@ public class Logic {
         }
 
         int maxEmptyFieds = 0;
+
         if (crownhead) {
-            maxEmptyFieds = boardSize - 2;
+            maxEmptyFieds = boardSize - 3;
         }
 
         int freeFields = 0;
         do {
-            // Sprawdzanie czy ruch wypadnie na planszy
-            // && sprawdzenie czy jest po drodze pionek do zbicia
-            // && sprawdzenie czy pionek zakonczy ruch na wolnym polu
-            // && sprawdzenie czy między bijącym pionkiem a pionkiem bitym nie ma żadnych dodatkowych pionów
-            // - dla zwykłego piona (freeFields=0) warunke jest zawsze spełniony, (freeFields > 0) - w przypadku damki
-
             // NORTH_WEST
             if (startPosX >= (2 + freeFields) && startPosY >= (2 + freeFields) &&
                     isOpponentsPawn(startPosX, startPosY, NORTH_WEST, (1 + freeFields)) &&
                     logicBoardTable[startPosX - (2 + freeFields)][startPosY - (2 + freeFields)] == FREE_FIELD &&
                     isFreeFields(startPosX, startPosY, NORTH_WEST, freeFields)) {
-//                 System.out.println("pawnPossibleCaptures: Badany pion/damka biała czarna ma możliwośc bicia w kierunku NW");
                 crossingX = startPosX - (1 + freeFields);
                 crossingY = startPosY - (1 + freeFields);
-                movements.add(new Movement(startPosX, startPosY,
+                pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
                         startPosX - (2 + freeFields), startPosY - (2 + freeFields),
                         crossingX, crossingY));
             }
 
             // NORTH_EAST
-            if (startPosX <= (boardSize - 2 - freeFields) && startPosY >= (2 + freeFields) &&
+            if (startPosX <= (MAX_X - 2 - freeFields) && startPosY >= (2 + freeFields) &&
                     isOpponentsPawn(startPosX, startPosY, NORTH_EAST, (1 + freeFields)) &&
                     logicBoardTable[startPosX + (2 + freeFields)][startPosY - (2 + freeFields)] == FREE_FIELD &&
                     isFreeFields(startPosX, startPosY, NORTH_EAST, freeFields)) {
-//                 System.out.println("pawnPossibleCaptures: Badany pion/damka biała czarna ma możliwośc bicia w kierunku NE");
                 crossingX = startPosX + (1 + freeFields);
                 crossingY = startPosY - (1 + freeFields);
-                movements.add(new Movement(startPosX, startPosY,
+                pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
                         startPosX + (2 + freeFields), startPosY - (2 + freeFields),
                         crossingX, crossingY));
             }
 
             // SOUTH_EAST
-            if (startPosX <= (boardSize - 2 - freeFields) && startPosY <= (boardSize - 2 - freeFields) &&
+            if (startPosX <= (MAX_X - 2 - freeFields) && startPosY <= (MAX_Y - 2 - freeFields) &&
                     isOpponentsPawn(startPosX, startPosY, SOUTH_EAST, (1 + freeFields)) &&
                     logicBoardTable[startPosX + (2 + freeFields)][startPosY + (2 + freeFields)] == FREE_FIELD &&
                     isFreeFields(startPosX, startPosY, SOUTH_EAST, freeFields)) {
-//                 System.out.println("pawnPossibleCaptures: Badany pion/damka biała czarna ma możliwośc bicia w kierunku SE");
                 crossingX = startPosX + (1 + freeFields);
                 crossingY = startPosY + (1 + freeFields);
-                movements.add(new Movement(startPosX, startPosY,
+                pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
                         startPosX + (2 + freeFields), startPosY + (2 + freeFields),
                         crossingX, crossingY));
             }
 
             // SOUTH_WEST
-            if (startPosX >= (2 + freeFields) && startPosY <= (boardSize - 2 - freeFields) &&
+            if (startPosX >= (2 + freeFields) && startPosY <= (MAX_Y - 2 - freeFields) &&
                     isOpponentsPawn(startPosX, startPosY, SOUTH_WEST, (1 + freeFields)) &&
                     logicBoardTable[startPosX - (2 + freeFields)][startPosY + (2 + freeFields)] == FREE_FIELD &&
                     isFreeFields(startPosX, startPosY, SOUTH_WEST, freeFields)) {
-//                 System.out.println("pawnPossibleCaptures: Badany pion/damka biała czarna ma możliwośc bicia w kierunku SW");
                 crossingX = startPosX - (1 + freeFields);
                 crossingY = startPosY + (1 + freeFields);
-                movements.add(new Movement(startPosX, startPosY, startPosX - (2 + freeFields), startPosY + (2 + freeFields),
+                pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
+                        startPosX - (2 + freeFields),  startPosY + (2 + freeFields),
                         crossingX, crossingY));
             }
 
             freeFields++;
         } while (freeFields <= maxEmptyFieds);
 
-//        if (movements.size() > 0) {
-//             System.out.println("pawnPossibleCaptures: Badany pion na pozycji x=" + startPosX + " y=" + startPosY +
-//                     " ma " + movements.size() + " bicie\n");
-//        }
-//        if (movements.size() == 0) {
-//             System.out.println("pawnPossibleCaptures: Badany pion na pozycji x=" + startPosX + " y=" + startPosY +
-//                     " nie ma bicie\n");
-//        }
-
-        return new ArrayList<>(movements);
+        return new ArrayList<>(pawnPossibleCapturesTable);
     }
 
-    public ArrayList<Movement> playerPossibleCaptures(int pawnColor) {
-        // System.out.println("***Sprawdzenie czy gracz ma jakiekolwiek bicie***");
-        {
-            // System.out.println("\nplayerPossibleCaptures: Dane wejściowe");
-            //if (pawnColor == WHITE_PAWN) // System.out.println("playerPossibleCaptures: Badanie białych pionów");
-            //if (pawnColor == BLACK_PAWN) // System.out.println("playerPossibleCaptures: Badanie czarnych pionów");
-            // System.out.println("\nplayerPossibleCaptures: Dane wynikowe");
-        }
+    public List<Movement> playerPossibleCaptures(int pawnColor) {
 
-        movements.clear();
+        List<Movement> playerPossibleCapturesTable = new ArrayList<>();
 
         int pawnCrownheadColor;
         if (pawnColor == WHITE_PAWN) {
@@ -287,55 +226,38 @@ public class Logic {
         for (int j = 0; j <= MAX_Y; j++) {
             for (int i = 0; i <= MAX_X; i++) {
                 if (logicBoardTable[i][j] == pawnColor || logicBoardTable[i][j] == pawnCrownheadColor) {
-                    movements.addAll(pawnPossibleCaptures(i, j));
+                    playerPossibleCapturesTable.addAll(pawnPossibleCaptures(i, j));
                 }
             }
         }
-//         System.out.println("playerPossibleCaptures: Gracz ma " + possibleCapturesTable.size() + " bicia\n");
-        return new ArrayList<>(movements);
+
+        return new ArrayList<>(playerPossibleCapturesTable);
     }
 
     public boolean isOtherPawnMustBeMove(int pawnColor, int startPosX, int startPosY) {
-//         System.out.println("***Sprawdzenie czy inny pion nie musi byc przesunięty***");
-//        {
-//             System.out.println("\nisOtherPawnMustBeMove: Dane wejściowe");
-//             if (pawnColor == WHITE_PAWN) // System.out.println("isOtherPawnMustBeMove: Badanie białych pionów");
-//             if (pawnColor == BLACK_PAWN) // System.out.println("isOtherPawnMustBeMove: Badanie czarnych pionów");
-//             System.out.println("isOtherPawnMustBeMove: startPosX = " + startPosX);
-//             System.out.println("isOtherPawnMustBeMove: startPosY = " + startPosY);
-//             System.out.println("\nisOtherPawnMustBeMove: Dane wynikowe");
-//        }
 
-        movements.clear();
+        List<Movement> allPawnCaptureTable = new ArrayList<>();
+        List<Movement> currentPawnCaptureTable = new ArrayList<>();
 
         boolean otherPawnMustBeMove = true;
+
         // spradzenie czy jakikolwiek pion o dany kolorze ma bicie ma bicie
-        movements.addAll(playerPossibleCaptures(pawnColor));
-        if ((movements.size() == 0) && isPawnHaveFreeSpace(startPosX, startPosY)) {
+        allPawnCaptureTable.addAll(playerPossibleCaptures(pawnColor));
+        if ((allPawnCaptureTable.size() == 0) && isPawnHaveFreeSpace(startPosX, startPosY)) {
             otherPawnMustBeMove = false;
-//             System.out.println("isOtherPawnMustBeMove: Pion może być przesunięty bez bicia\n");
             return otherPawnMustBeMove;
         } else {
             // sprawdzenie czy wybrany pion ma bicie
-            movements.addAll(pawnPossibleCaptures(startPosX, startPosY));
-            if (movements.size() > 0) {
-//                 System.out.println("isOtherPawnMustBeMove: Pion może być przesunięty z biciem\n");
+            currentPawnCaptureTable.addAll(pawnPossibleCaptures(startPosX, startPosY));
+            if (currentPawnCaptureTable.size() > 0) {
                 otherPawnMustBeMove = false;
                 return otherPawnMustBeMove;
             }
         }
-        // System.out.println("isOtherPawnMustBeMove: Inny pion musi być przesunięty\n");
         return otherPawnMustBeMove;
     }
 
     public boolean isPawnHaveFreeSpace(int startPosX, int startPosY) {
-        // System.out.println("***Sprawdzenie czy pion ma wolna przestrzen do ruchu***");
-        {
-            // System.out.println("\nisPawnHaveFreeSpace: Dane wejściowe");
-            // System.out.println("isPawnHaveFreeSpace: startPosX = " + startPosX);
-            // System.out.println("isPawnHaveFreeSpace: startPosY = " + startPosY);
-            // System.out.println("\nisPawnHaveFreeSpace: Dane wynikowe");
-        }
 
         boolean pawnHaveFreeSpace = false;
         int pawn = logicBoardTable[startPosX][startPosY];
@@ -348,34 +270,30 @@ public class Logic {
                 (pawn == BLACK_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, NORTH_WEST, 1)) {
             pawnHaveFreeSpace = true;
-            // System.out.println("isPawnHaveFreeSpace: Pion/damka biała/czarna ma wolne pole na kierunku NW\n");
             return pawnHaveFreeSpace;
         }
 
         // NORTH_EAST
-        if ((startPosX <= (boardSize - 1)) && (startPosY >= 1) &&
+        if ((startPosX <= (MAX_X - 1)) && (startPosY >= 1) &&
                 (pawn == BLACK_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, NORTH_EAST, 1)) {
             pawnHaveFreeSpace = true;
-            // System.out.println("isPawnHaveFreeSpace: Pion/damka biała/czarna ma wolne pole na kierunku NE\n");
             return pawnHaveFreeSpace;
         }
 
         // SOUTH_EAST
-        if ((startPosX <= (boardSize - 1)) && (startPosY <= (boardSize - 1)) &&
+        if ((startPosX <= (MAX_X - 1)) && (startPosY <= (MAX_Y - 1)) &&
                 (pawn == WHITE_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, SOUTH_EAST, 1)) {
             pawnHaveFreeSpace = true;
-            // System.out.println("isPawnHaveFreeSpace: Pion/damka biała/czarna ma wolne pole na kierunku SE\n");
             return pawnHaveFreeSpace;
         }
 
         // SOUTH_WEST
-        if ((startPosX >= 1) && (startPosY <= (boardSize - 1)) &&
+        if ((startPosX >= 1) && (startPosY <= (MAX_Y - 1)) &&
                 (pawn == WHITE_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, SOUTH_WEST, 1)) {
             pawnHaveFreeSpace = true;
-            // System.out.println("isPawnHaveFreeSpace: Pion/damka biała/czarna ma wolne pole na kierunku SW\n");
             return pawnHaveFreeSpace;
         }
 
@@ -383,30 +301,9 @@ public class Logic {
     }
 
     public boolean isOpponentsPawn(int startPosX, int startPosY, int direction, int distance) {
-//        System.out.println("***Testowanie czy na danym polu jest pion przeciwnika***");
-//        {
-//            System.out.println("\nisOpponentsPawn: Dane wejściowe");
-//            System.out.println("isOpponentsPawn: startPosX = " + startPosX);
-//            System.out.println("isOpponentsPawn: startPosY = " + startPosY);
-//            if (direction == NORTH_WEST) {
-//                System.out.println("isOpponentsPawn: kierunek NW");
-//            }
-//            if (direction == NORTH_EAST) {
-//                System.out.println("isOpponentsPawn: kierunek NE");
-//            }
-//            if (direction == SOUTH_EAST) {
-//                System.out.println("isOpponentsPawn: kierunek SE");
-//            }
-//            if (direction == SOUTH_WEST) {
-//                System.out.println("isOpponentsPawn: kierunek SW");
-//            }
-//            System.out.println("isOpponentsPawn: distance = " + distance);
-//            System.out.println("\nisOpponentsPawn: Dane wynikowe");
-//        }
 
         boolean opponetsPawn = false;
         if (distance == 0) {
-//             System.out.println("isOpponentsPawn: Nie ma na tym polu pionka przeciwnika bo distance = 0\n");
             return opponetsPawn;
         }
 
@@ -417,7 +314,6 @@ public class Logic {
                     if (startPosX >= distance && startPosY >= distance &&
                             (logicBoardTable[startPosX - distance][startPosY - distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY - distance] == BLACK_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji NW stoi czarny pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
@@ -425,7 +321,6 @@ public class Logic {
                     if (startPosX <= (MAX_X - distance) && startPosY >= distance &&
                             (logicBoardTable[startPosX + distance][startPosY - distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY - distance] == BLACK_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji NE stoi czarny pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
@@ -433,7 +328,6 @@ public class Logic {
                     if (startPosX <= (MAX_X - distance) && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX + distance][startPosY + distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY + distance] == BLACK_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji SE stoi czarny pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
@@ -441,7 +335,6 @@ public class Logic {
                     if (startPosX >= distance && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX - distance][startPosY + distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY + distance] == BLACK_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji SW stoi czarny pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
@@ -455,7 +348,6 @@ public class Logic {
                     if (startPosX >= distance && startPosY >= distance &&
                             (logicBoardTable[startPosX - distance][startPosY - distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY - distance] == WHITE_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji NW stoi biały pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
@@ -463,7 +355,6 @@ public class Logic {
                     if (startPosX <= (MAX_X - distance) && startPosY >= distance &&
                             (logicBoardTable[startPosX + distance][startPosY - distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY - distance] == WHITE_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji NE stoi biały pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
@@ -471,7 +362,6 @@ public class Logic {
                     if (startPosX <= (MAX_X - distance) && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX + distance][startPosY + distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY + distance] == WHITE_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji SE stoi biały pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
@@ -479,42 +369,19 @@ public class Logic {
                     if (startPosX >= distance && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX - distance][startPosY + distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY + distance] == WHITE_CROWNHEAD)) {
-//                         System.out.println("isOpponentsPawn: Na pozycji SW stoi biały pionek przeciwnika");
                         opponetsPawn = true;
                     }
                     break;
             }
         }
-//         System.out.println("isOpponentsPawn: Pionek przeciwnika na badanym polu: " + opponetsPawn + "\n");
+
         return opponetsPawn;
     }
 
     public boolean isFreeFields(int startPosX, int startPosY, int direction, int distance) {
-//        System.out.println("***Testowanie warunku wolnego pola***");
-//        {
-//            System.out.println("\nisFreeFields: Dane wejściowe");
-//            System.out.println("isFreeFields: startPosX = " + startPosX);
-//            System.out.println("isFreeFields: startPosY = " + startPosY);
-//            if (direction == NORTH_WEST) {
-//                System.out.println("isFreeFields: kierunek NW");
-//            }
-//            if (direction == NORTH_EAST) {
-//                System.out.println("isFreeFields: kierunek NE");
-//            }
-//            if (direction == SOUTH_EAST) {
-//                System.out.println("isFreeFields: kierunek SE");
-//            }
-//            if (direction == SOUTH_WEST) {
-//                System.out.println("isFreeFields: kierunek SW");
-//            }
-//            System.out.println("isFreeFields: distance = " + distance);
-//            System.out.println("\nisOpponentsPawn: Dane wynikowe");
-//        }
-
 
         boolean freeFields = true;
         if (distance == 0) {
-//             System.out.println("isFreeFields: Warunek wolnego pola spełniony bo distance = 0\n");
             return freeFields;
         }
 
@@ -523,55 +390,216 @@ public class Logic {
                 case NORTH_WEST:
                     if (startPosX >= i && startPosY >= i &&
                             logicBoardTable[startPosX - i][startPosY - i] != FREE_FIELD) {
-//                         System.out.println("isFreeFields: Brak wolnego pola na pozycji NW\n");
                         freeFields = false;
                     }
                     break;
                 case NORTH_EAST:
                     if (startPosX <= (MAX_X - i) && startPosY >= i &&
                             logicBoardTable[startPosX + i][startPosY - i] != FREE_FIELD) {
-//                         System.out.println("isFreeFields: Brak wolnego pola na pozycji NE\n");
                         freeFields = false;
                     }
                     break;
                 case SOUTH_EAST:
                     if (startPosX <= (MAX_X - i) && startPosY <= (MAX_Y - i) &&
                             logicBoardTable[startPosX + i][startPosY + i] != FREE_FIELD) {
-//                         System.out.println("isFreeFields: Brak wolnego pola na pozycji SE\n");
                         freeFields = false;
                     }
                     break;
                 case SOUTH_WEST:
                     if (startPosX >= i && startPosY <= (MAX_Y - i) &&
                             logicBoardTable[startPosX - i][startPosY + i] != FREE_FIELD) {
-//                         System.out.println("isFreeFields: Brak wolnego pola na pozycji SW\n");
                         freeFields = false;
                     }
                     break;
             }
         }
 
-//        if (direction == NORTH_WEST && !freeFields) {
-//             System.out.println("isFreeFields: Wolne pole na pozycji NW\n");
-//        }
-//        if (direction == NORTH_EAST && !freeFields) {
-//             System.out.println("isFreeFields: Wolne pole na pozycji NE\n");
-//        }
-//        if (direction == SOUTH_EAST && !freeFields) {
-//             System.out.println("isFreeFields: Wolne pole na pozycji SE\n");
-//        }
-//        if (direction == SOUTH_WEST && !freeFields) {
-//             System.out.println("isFreeFields: Wolne pole na pozycji SW\n");
-//        }
-
         return freeFields;
     }
 
-    public ArrayList<Movement> computerMove() {
-        movements.clear();
-//        int crossingX = NO_CROSSING;
-//        int crossingY = NO_CROSSING;
-        return new ArrayList<>(movements);
+    public boolean isPlayerHaVeNoMove(int pawnColor) {
+        boolean playerHaveNoMove = true;
+        List<Movement> playerMovementTable = new ArrayList<>();
+        playerMovementTable.clear();
+        playerMovementTable.addAll(playerPossibleCaptures(pawnColor));
+        if (playerMovementTable.size() > 0) {
+            playerHaveNoMove = false;
+            return playerHaveNoMove;
+        }
+
+        for (int j = 0; j <= MAX_Y; j++) {
+            for (int i = 0; i <= MAX_X; i++) {
+                if ((pawnColor == WHITE_PAWN) &&
+                        (logicBoardTable[i][j] == WHITE_PAWN || logicBoardTable[i][j] == WHITE_CROWNHEAD) &&
+                        (isPawnHaveFreeSpace(i, j))) {
+                    playerHaveNoMove = false;
+                    return playerHaveNoMove;
+                }
+                if ((pawnColor == BLACK_PAWN) &&
+                        (logicBoardTable[i][j] == BLACK_PAWN || logicBoardTable[i][j] == BLACK_CROWNHEAD)) {
+                    if (isPawnHaveFreeSpace(i, j)) {
+                        playerHaveNoMove = false;
+                        return playerHaveNoMove;
+                    }
+                }
+            }
+        }
+        return playerHaveNoMove;
+    }
+
+    public List<Movement> computerSillyMove() {
+        List<Movement> computerMove = new ArrayList<>();
+        List<Movement> possibleMove = new ArrayList<>();
+        Random generator = new Random();
+        int startX = -1;
+        int startY = -1;
+        int stopX = -1;
+        int stopY = -1;
+        int crossingX = -1;
+        int crossingY = -1;
+        int distance = -1;
+
+        int theMove;
+        int[][] tempLogicBoardTable = new int[boardSize][boardSize];
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                tempLogicBoardTable[i][j] = logicBoardTable[i][j];
+            }
+        }
+
+        // Jeśli komputer ma bicie
+        possibleMove.addAll(playerPossibleCaptures(BLACK_PAWN));
+
+        if (possibleMove.size() > 0) {
+            // wybór losoweg ruchu
+            theMove = generator.nextInt(possibleMove.size());
+            computerMove.add(possibleMove.get(theMove));
+            // Sprawdzenie czy nie ma dalszego bicia przez ten pionek
+            do {
+                startX = computerMove.get(computerMove.size() - 1).startX;
+                startY = computerMove.get(computerMove.size() - 1).startY;
+                stopX = computerMove.get(computerMove.size() - 1).stopX;
+                stopY = computerMove.get(computerMove.size() - 1).stopY;
+                crossingX = computerMove.get(computerMove.size() - 1).crossingX;
+                crossingY = computerMove.get(computerMove.size() - 1).crossingY;
+
+                logicBoardTable[stopX][stopY] = logicBoardTable[startX][startY];
+                logicBoardTable[startX][startY] = FREE_FIELD;
+                logicBoardTable[crossingX][crossingY] = FREE_FIELD;
+
+                startX = stopX;
+                startY = stopY;
+                possibleMove.clear();
+                possibleMove.addAll(pawnPossibleCaptures(startX, startY));
+                if (possibleMove.size() > 0) {
+                    // wybór losoweg ruchu
+                    theMove = generator.nextInt(possibleMove.size());
+                    computerMove.add(possibleMove.get(theMove));
+                    System.out.println("Komputer ma bicie");
+                }
+            } while (possibleMove.size() != 0);
+            logicBoardTable = tempLogicBoardTable;
+            return new ArrayList<>(computerMove);
+        }
+
+        // Jeśli komputer nie ma bicia
+        for (int i = 0; i <= MAX_X; i++) {
+            for (int j = 0; j <= MAX_Y; j++) {
+                if ((logicBoardTable[i][j] == BLACK_PAWN || logicBoardTable[i][j] == BLACK_CROWNHEAD) &&
+                        (isPawnHaveFreeSpace(i, j))) {
+                    startX = i;
+                    startY = j;
+
+                    if (logicBoardTable[i][j] == BLACK_CROWNHEAD) {
+                        distance = MAX_X - 1;
+                        System.out.println("distance = " + distance);
+                    } else {
+                        distance = 1;
+                        System.out.println("distance = " + distance);
+                    }
+
+                    do {
+                        // NW
+                        printLogicBoardTable("dupa");
+                        if ((startX - distance >= 0) && (startY - distance >= 0) &&
+                                isFreeFields(startX, startY, NORTH_WEST, distance)) {
+                            possibleMove.add(new Movement(startX, startY,
+                                    startX - distance, startY - distance, NO_CROSSING, NO_CROSSING));
+                            System.out.println("computerMove NW= " + possibleMove.size());
+                            for (Movement currentMove : possibleMove) {
+                                System.out.println("NW" + currentMove);
+                            }
+                        }
+                        // NE
+                        if ((startX + distance <= MAX_X) && (startY - distance >= 0) &&
+                                isFreeFields(startX, startY, NORTH_EAST, distance)) {
+                            possibleMove.add(new Movement(startX, startY,
+                                    startX + distance, startY - distance, NO_CROSSING, NO_CROSSING));
+                            System.out.println("computerMove NE= " + possibleMove.size());
+                            for (Movement currentMove : possibleMove) {
+                                System.out.println("NW" + currentMove);
+                            }
+                        }
+                        // SE
+                        if ((logicBoardTable[startX][startY] == BLACK_CROWNHEAD) &&
+                                (startX + distance <= MAX_X) && (startY + distance <= MAX_Y) &&
+                                isFreeFields(startX, startY, SOUTH_EAST, distance)) {
+                            possibleMove.add(new Movement(startX, startY,
+                                    startX + distance, startY + distance, NO_CROSSING, NO_CROSSING));
+                            System.out.println("computerMove SE= " + possibleMove.size());
+                            for (Movement currentMove : possibleMove) {
+                                System.out.println(currentMove);
+                            }
+                        }
+                        // SW
+                        if ((logicBoardTable[startX][startY] == BLACK_CROWNHEAD) &&
+                                (startX - distance >= 0) && (startY + distance <= MAX_Y) &&
+                                isFreeFields(startX, startY, SOUTH_WEST, distance)) {
+                            possibleMove.add(new Movement(startX, startY,
+                                    startX - distance, startY + distance, NO_CROSSING, NO_CROSSING));
+                            System.out.println("computerMove SW= " + possibleMove.size());
+                            for (Movement currentMove : possibleMove) {
+                                System.out.println(currentMove);
+                            }
+                        }
+                        distance--;
+                    } while (distance > 0);
+
+                }
+            }
+        }
+        // wybór losoweg ruchu computera bez bicia
+        System.out.println("Możliwe ruchy bez bicia = " + possibleMove.size());
+        if (possibleMove.size() > 0) {
+            for (Movement currentMove : possibleMove) {
+                System.out.println(currentMove);
+            }
+            theMove = generator.nextInt(possibleMove.size());
+            computerMove.add(possibleMove.get(theMove));
+        }
+
+        return new ArrayList<>(computerMove);
+    }
+
+
+    private void printLogicBoardTable(String description) {
+        System.out.println(description);
+        for (int j = 0; j < boardSize; j++) {
+            for (int i = 0; i < boardSize; i++) {
+                if ((logicBoardTable[i][j] > -1) && (logicBoardTable[i][j] < 10)) {
+                    System.out.print(" " + logicBoardTable[i][j] + "\t");
+                } else {
+                    System.out.print(logicBoardTable[i][j] + "\t");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public List<Movement> computerMove() {
+        List<Movement> computerMoveTable = new ArrayList<>();
+
+        return new ArrayList<>(computerMoveTable);
     }
 
 }

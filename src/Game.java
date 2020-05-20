@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Game {
@@ -16,29 +17,25 @@ public class Game {
 
     private boolean gameInProgress;
     private boolean moveInProgress;
+    private boolean computerMove;
     private String listOfMovements;
     private Logic logic;
-    private ArrayList<Movement> movements;
-    private ArrayList<Movement> currentMovements;
 
     private final int WHITE_PAWN = 1;
-    private final int WHITE_CROWNHEAD = 2;
     private final int BLACK_PAWN = 3;
-    private final int BLACK_CROWNHEAD = 4;
     private final int NO_CROSSING = -1;
 
 
     public Game() {
         logic = new Logic(8);
-        movements = new ArrayList<>();
-        currentMovements = new ArrayList<>();
         moveInProgress = false;
         gameInProgress = true;
+        computerMove = false;
         listOfMovements = "";
         pawnsStartPosition();
 
         // przypadki testowe
-        boardTableTestCase(8);
+        boardTableTestCase(1);
     }
 
     private void setAllowedPawnsPositions() {
@@ -59,7 +56,8 @@ public class Game {
         numberPawnsBlack = 12;
         moveInProgress = false;
         gameInProgress = true;
-        movements.clear();
+        computerMove = false;
+        //movements.clear();
         listOfMovements = "";
         int pawnWhite = 0;
         int pawnBlack = 0;
@@ -153,7 +151,7 @@ public class Game {
     }
 
     public void boardTableTestCase(int testCase) {
-        movements = new ArrayList<>();
+
         switch (testCase) {
             case 1:
                 // nowe rozdanie
@@ -267,6 +265,71 @@ public class Game {
                 pawnsWhite[9 - 1].setPosX(4);
                 pawnsWhite[9 - 1].setPosY(5);
                 break;
+            case 9:
+                // czarny pinek nie ma możliwości ruch
+                boardTable[0][5] = 0;
+                pawnsBlack[13 - 13].setActive(false);
+                boardTable[0][7] = 0;
+                pawnsBlack[14 - 13].setActive(false);
+                boardTable[2][7] = 0;
+                pawnsBlack[15 - 13].setActive(false);
+                boardTable[1][6] = 0;
+                pawnsBlack[16 - 13].setActive(false);
+                boardTable[2][5] = 0;
+                pawnsBlack[17 - 13].setActive(false);
+                boardTable[4][5] = 0;
+                pawnsBlack[18 - 13].setActive(false);
+                boardTable[3][6] = 0;
+                pawnsBlack[19 - 13].setActive(false);
+                boardTable[4][7] = 0;
+                pawnsBlack[20 - 13].setActive(false);
+                boardTable[6][7] = 0;
+                pawnsBlack[21 - 13].setActive(false);
+                boardTable[5][6] = 0;
+                pawnsBlack[22 - 13].setPosX(0);
+                pawnsBlack[22 - 13].setPosY(3);
+                boardTable[6][5] = 0;
+                boardTable[0][3] = 22;
+                pawnsBlack[23 - 13].setActive(false);
+                boardTable[7][6] = 0;
+                pawnsBlack[24 - 13].setActive(false);
+                numberPawnsBlack -= 11;
+                break;
+            case 10:
+                // 1 czarny pinek z możliwością ruchu tylko w kierunku NW
+                boardTable[0][5] = 0;
+                pawnsBlack[13 - 13].setActive(false);
+                boardTable[0][7] = 0;
+                pawnsBlack[14 - 13].setActive(false);
+                boardTable[2][7] = 0;
+                pawnsBlack[15 - 13].setActive(false);
+                boardTable[1][6] = 0;
+                pawnsBlack[16 - 13].setActive(false);
+                boardTable[2][5] = 0;
+                pawnsBlack[17 - 13].setActive(false);
+                boardTable[4][5] = 0;
+                pawnsBlack[18 - 13].setActive(false);
+                boardTable[3][6] = 0;
+                pawnsBlack[19 - 13].setActive(false);
+                boardTable[4][7] = 0;
+                pawnsBlack[20 - 13].setActive(false);
+                boardTable[5][6] = 0;
+                pawnsBlack[21 - 13].setActive(false);
+                boardTable[6][7] = 0;
+                boardTable[6][5] = 0;
+                boardTable[6][3] = 22;
+                pawnsBlack[22 - 13].setPosX(6);
+                pawnsBlack[22 - 13].setPosY(3);
+                pawnsBlack[23 - 13].setActive(false);
+                boardTable[7][6] = 0;
+                pawnsBlack[24 - 13].setActive(false);
+                numberPawnsBlack -= 11;
+                boardTable[5][2] = 0;
+                boardTable[3][4] = 9;
+                pawnsWhite[9 - 1].setPosX(3);
+                pawnsWhite[9 - 1].setPosY(4);
+                pawnsWhite[9 - 1].setCrownhead(true);
+                break;
         }
         printBoard("BoardTable", boardTable);
         System.out.println();
@@ -276,11 +339,9 @@ public class Game {
     }
 
     public void pawnSelect(int posX, int posY) {
+        List<Movement> pawnMovementTable = new ArrayList<>();
+        List<Movement> pawnCurrentMovementTable = new ArrayList<>();
         int currentField = boardTable[posX][posY];
-
-//        printBoard("BoardTable", boardTable);
-//        System.out.println();
-//        printBoard("LogicBoardTable", logic.getLogicBoardTable());
         System.out.println();
         System.out.println("X=" + posX + " Y=" + posY);
         System.out.println("Pion " + currentField);
@@ -307,21 +368,21 @@ public class Game {
             int startY = pawnsWhite[PawnSelected - 1].getPosY();
             int stopX = posX;
             int stopY = posY;
-            movements.clear();
-            movements.addAll(logic.pawnPossibleCaptures(startX, startY));
+            pawnMovementTable.clear();
+            pawnMovementTable.addAll(logic.pawnPossibleCaptures(startX, startY));
 
             // Jesli pion ma bicie
-            if (movements.size() > 0) {
-                for (int i = 0; i < movements.size(); i++) {
-                    if (movements.get(i).stopX == stopX && movements.get(i).stopY == stopY) {
+            if (pawnMovementTable.size() > 0) {
+                for (int i = 0; i < pawnMovementTable.size(); i++) {
+                    if (pawnMovementTable.get(i).stopX == stopX && pawnMovementTable.get(i).stopY == stopY) {
                         System.out.println("Przesuniecie piona z biciem");
-                        currentMovements.add(movements.get(i));
-                        pawnMoveExecute(currentMovements);
+                        pawnCurrentMovementTable.add(pawnMovementTable.get(i));
+                        pawnMoveExecute(new ArrayList<>(pawnCurrentMovementTable));
 
-                        movements.clear();
-                        movements.addAll(logic.pawnPossibleCaptures(stopX, stopY));
+                        pawnMovementTable.clear();
+                        pawnMovementTable.addAll(logic.pawnPossibleCaptures(stopX, stopY));
                         // Jesli pion ma dalsze bicie
-                        if (movements.size() > 0) {
+                        if (pawnMovementTable.size() > 0) {
                             System.out.println("Konieczny dalszy ruch piona. Bicie wielokrotne.");
                             moveInProgress = true;
                         } else { // Jeśli pion nie ma dalszego bicia
@@ -334,19 +395,34 @@ public class Game {
             } else {
                 // Jeśli pion nie ma bicia
                 System.out.println("Pion nie ma bicia");
-                movements.clear();
-                movements.addAll(logic.moveAllowed(startX, startY, stopX, stopY));
-                for (int i = 0; i < movements.size(); i++) {
-                    if (movements.get(i).stopX == stopX && movements.get(i).stopY == stopY) {
+                pawnMovementTable.clear();
+                pawnMovementTable.addAll(logic.moveAllowed(startX, startY, stopX, stopY));
+                for (int i = 0; i < pawnMovementTable.size(); i++) {
+                    if (pawnMovementTable.get(i).stopX == stopX && pawnMovementTable.get(i).stopY == stopY) {
                         System.out.println("Przesuniecie piona bez bicia");
-                        currentMovements.add(movements.get(i));
-                        pawnMoveExecute(currentMovements);
+                        pawnCurrentMovementTable.add(pawnMovementTable.get(i));
+                        pawnMoveExecute(new ArrayList<>(pawnCurrentMovementTable));
                         allowNewMovement();
                     }
                 }
             }
         }
 
+    }
+
+    public void computerMove() {
+        List<Movement> computerMoveTable = new ArrayList<>();
+        computerMoveTable.addAll(logic.computerSillyMove());
+
+        if (computerMoveTable.get(computerMoveTable.size()-1).stopY == 0) {
+            int startX = computerMoveTable.get(0).startX;
+            int startY = computerMoveTable.get(0).startY;
+            int pawn = boardTable[startX][startY];
+            pawnsBlack[pawn -13].setCrownhead(true);
+            createLogicBoardTable();
+        }
+        pawnMoveExecute(new ArrayList<>(computerMoveTable));
+        computerMove = false;
     }
 
     private void allowNewMovement() {
@@ -356,8 +432,8 @@ public class Game {
             pawnsWhite[PawnSelected - 1].setCrownhead(true);
             createLogicBoardTable();
         }
-        ;
         PawnSelected = 0;
+        computerMove = true;
     }
 
     private void pawnMoveExecute(ArrayList<Movement> currentMovements) {
@@ -381,7 +457,7 @@ public class Game {
             pawnColor = WHITE_PAWN;
         } else {
             pawnColor = BLACK_PAWN;
-            listOfMovements += "\t\t";
+            listOfMovements += "    ";
         }
 
         for (int i = 0; i < currentMovements.size(); i++) {
@@ -409,7 +485,6 @@ public class Game {
                 boardTable[stopX][stopY] = currentPawn;
                 pawnsWhite[currentPawn - 1].setPosX(stopX);
                 pawnsWhite[currentPawn - 1].setPosY(stopY);
-                //pawnsWhite[currentPawn - 1].setSelected(false);
 
                 if (crossingX != NO_CROSSING) {
                     crrosingPawn = boardTable[crossingX][crossingY];
@@ -451,22 +526,25 @@ public class Game {
     }
 
     public void isGameOver(int pawnColor) {
-        System.out.println("Sprawdzanie czy nie koniec gry");
-        System.out.println("numberPawnsWhite = " + numberPawnsWhite);
-        System.out.println("numberPawnsBlack = " + numberPawnsBlack);
-        gameInProgress = true;
         if (numberPawnsWhite == 0 || numberPawnsBlack == 0) {
             listOfMovements += "\nGAME OVER\n";
             if (pawnColor == WHITE_PAWN) {
                 listOfMovements += "You win :(";
+                gameInProgress = false;
             } else {
                 listOfMovements += "I win :)";
+                gameInProgress = false;
             }
             gameInProgress = false;
         } else {
-            //if (pawnColor == WHITE_PAWN && logic.i)
-            // ToDo dopisac do klasy Logic metodę sprawdzająca czy dany gracz ma jakąkolwiek możliwość ruchu
-            // z biciem czy bez bicia
+            if (pawnColor == WHITE_PAWN && logic.isPlayerHaVeNoMove(BLACK_PAWN)) {
+                listOfMovements += "I Have no move.\n You win :(";
+                gameInProgress = false;
+            }
+            if (pawnColor == BLACK_PAWN && logic.isPlayerHaVeNoMove(WHITE_PAWN)) {
+                listOfMovements += "You have no move.\n I win :)";
+                gameInProgress = false;
+            }
         }
     }
 
@@ -480,6 +558,10 @@ public class Game {
 
     public boolean isGameInProgress() {
         return gameInProgress;
+    }
+
+    public boolean isComputerMove() {
+        return computerMove;
     }
 
     public String getListOfMovements() {
