@@ -350,13 +350,14 @@ public class Game {
         // Zaznaczanie/odznaczanie piona
         if (currentField > 0 && currentField < 13 && !moveInProgress) {
             // jesli pion nie jest jeszcze zaznaczony i nie ma obowiązku ruchu innym pionem
-            if (!pawnsWhite[currentField - 1].isSelected() &&
+            if (!pawnsWhite[currentField - 1].isSelected() && PawnSelected == 0 &&
                     !logic.isOtherPawnMustBeMove(WHITE_PAWN, posX, posY) && !moveInProgress) {
                 pawnsWhite[currentField - 1].setSelected(true);
                 PawnSelected = currentField;
                 System.out.println("Pion " + currentField + " zaznaczony");
             } else { // jeśli pion jest zaznaczony ale ruch się jeszcze nie rozpoczoł
                 pawnsWhite[currentField - 1].setSelected(false);
+                if (PawnSelected > 0) {pawnsWhite[PawnSelected - 1].setSelected(false);}
                 PawnSelected = 0;
                 System.out.println("Pion " + currentField + " odznaczony");
             }
