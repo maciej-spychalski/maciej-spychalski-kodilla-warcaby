@@ -127,12 +127,33 @@ public class Logic {
             return new ArrayList<>(moveAllowedTable);
         }
 
+
+
+//        // Movement of crownhead with capture
+//        if ((pawnColor == WHITE_CROWNHEAD || pawnColor == BLACK_CROWNHEAD) &
+//                isFreeFields(startPosX, startPosY, direction, (distance - 2)) &
+//                isOpponentsPawn(startPosX, stopPosY, direction, (distance - 1))) {
+//            moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
+//            return new ArrayList<>(moveAllowedTable);
+//        }
+
         // Movement of crownhead with capture
-        if ((pawnColor == WHITE_CROWNHEAD || pawnColor == BLACK_CROWNHEAD) &
-                isFreeFields(startPosX, startPosY, direction, (distance - 2)) &
-                isOpponentsPawn(startPosX, stopPosY, direction, (distance - 1))) {
-            moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
-            return new ArrayList<>(moveAllowedTable);
+        if (pawnColor == WHITE_CROWNHEAD || pawnColor == BLACK_CROWNHEAD) {
+            int numberOfOpponetsPawn = 0;
+            int numberOfFreeFields = 0;
+            for (int i = 1; i <= distance; i++) {
+                if (isOpponentsPawn(startPosX, stopPosY, direction, i)) {
+                    numberOfOpponetsPawn++;
+                }
+                if (isFreeFields(startPosX, startPosY, direction, i)) {
+                    numberOfFreeFields++;
+                }
+            }
+            if (numberOfOpponetsPawn == 1 && numberOfFreeFields == (distance - 1)) {
+                moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
+                return new ArrayList<>(moveAllowedTable);
+            }
+
         }
 
         return new ArrayList<>(moveAllowedTable);
@@ -168,6 +189,30 @@ public class Logic {
                 pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
                         startPosX - (2 + freeFields), startPosY - (2 + freeFields),
                         crossingX, crossingY));
+
+                // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
+                // zatrzymać się bijąca damka
+                if (crownhead) {
+                    int maxFreeFieldsAfterCrossing = 0;
+                    int freeFieldsAfterCrossing = 1;
+                    if (startPosX < startPosY) {
+                        maxFreeFieldsAfterCrossing = startPosX - (2 + freeFields);
+                    } else {
+                        maxFreeFieldsAfterCrossing = startPosY - (2 + freeFields);
+                    }
+
+                    while (freeFieldsAfterCrossing <= maxFreeFieldsAfterCrossing) {
+                        if (isFreeFields(startPosX - (2 + freeFields), startPosY - (2 + freeFields),
+                                NORTH_WEST,freeFieldsAfterCrossing)) {
+                            pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
+                                    startPosX - (2 + freeFields + freeFieldsAfterCrossing),
+                                    startPosY - (2 + freeFields + freeFieldsAfterCrossing),
+                                    crossingX, crossingY));
+                        } else break;
+                        freeFieldsAfterCrossing++;
+                    }
+                }
+
             }
 
             // NORTH_EAST
@@ -180,6 +225,31 @@ public class Logic {
                 pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
                         startPosX + (2 + freeFields), startPosY - (2 + freeFields),
                         crossingX, crossingY));
+
+                // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
+                // zatrzymać się bijąca damka
+                if (crownhead) {
+                    int maxFreeFieldsAfterCrossing = 0;
+                    int freeFieldsAfterCrossing = 1;
+                    if (startPosX > startPosY) {
+                        maxFreeFieldsAfterCrossing = MAX_X - (startPosX + (2 + freeFields));
+                    } else {
+                        maxFreeFieldsAfterCrossing = startPosY - (2 + freeFields);
+                    }
+
+                    while (freeFieldsAfterCrossing <= maxFreeFieldsAfterCrossing) {
+                        if (isFreeFields(startPosX + (2 + freeFields), startPosY - (2 + freeFields),
+                                NORTH_EAST,freeFieldsAfterCrossing)) {
+                            pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
+                                    startPosX + (2 + freeFields + freeFieldsAfterCrossing),
+                                    startPosY - (2 + freeFields + freeFieldsAfterCrossing),
+                                    crossingX, crossingY));
+                        } else break;
+                        freeFieldsAfterCrossing++;
+                    }
+                }
+
+
             }
 
             // SOUTH_EAST
@@ -192,6 +262,30 @@ public class Logic {
                 pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
                         startPosX + (2 + freeFields), startPosY + (2 + freeFields),
                         crossingX, crossingY));
+
+                // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
+                // zatrzymać się bijąca damka
+                if (crownhead) {
+                    int maxFreeFieldsAfterCrossing = 0;
+                    int freeFieldsAfterCrossing = 1;
+                    if (startPosX > startPosY) {
+                        maxFreeFieldsAfterCrossing = MAX_X - (startPosX + (2 + freeFields));
+                    } else {
+                        maxFreeFieldsAfterCrossing = MAX_Y - (startPosY + (2 + freeFields));
+                    }
+
+                    while (freeFieldsAfterCrossing <= maxFreeFieldsAfterCrossing) {
+                        if (isFreeFields(startPosX + (2 + freeFields), startPosX + (2 + freeFields),
+                                SOUTH_EAST,freeFieldsAfterCrossing)) {
+                            pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
+                                    startPosX + (2 + freeFields + freeFieldsAfterCrossing),
+                                    startPosY + (2 + freeFields + freeFieldsAfterCrossing),
+                                    crossingX, crossingY));
+                        } else break;
+                        freeFieldsAfterCrossing++;
+                    }
+                }
+
             }
 
             // SOUTH_WEST
@@ -204,6 +298,30 @@ public class Logic {
                 pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
                         startPosX - (2 + freeFields),  startPosY + (2 + freeFields),
                         crossingX, crossingY));
+
+                // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
+                // zatrzymać się bijąca damka
+                if (crownhead) {
+                    int maxFreeFieldsAfterCrossing = 0;
+                    int freeFieldsAfterCrossing = 1;
+                    if (startPosX < startPosY) {
+                        maxFreeFieldsAfterCrossing = startPosX - (2 + freeFields);
+                    } else {
+                        maxFreeFieldsAfterCrossing = MAX_Y - (startPosY + (2 + freeFields));
+                    }
+
+                    while (freeFieldsAfterCrossing <= maxFreeFieldsAfterCrossing) {
+                        if (isFreeFields(startPosX - (2 + freeFields), startPosY + (2 + freeFields),
+                                SOUTH_WEST,freeFieldsAfterCrossing)) {
+                            pawnPossibleCapturesTable.add(new Movement(startPosX, startPosY,
+                                    startPosX - (2 + freeFields + freeFieldsAfterCrossing),
+                                    startPosY + (2 + freeFields + freeFieldsAfterCrossing),
+                                    crossingX, crossingY));
+                        } else break;
+                        freeFieldsAfterCrossing++;
+                    }
+                }
+
             }
 
             freeFields++;
