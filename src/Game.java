@@ -31,7 +31,7 @@ public class Game {
         pawnsStartPosition();
 
         // przypadki testowe
-        boardTableTestCase(1);
+        //boardTableTestCase(1);
     }
 
     private void setAllowedPawnsPositions() {
@@ -53,7 +53,6 @@ public class Game {
         moveInProgress = false;
         gameInProgress = true;
         computerMove = false;
-        //movements.clear();
         listOfMovements = "";
         int pawnWhite = 0;
         int pawnBlack = 0;
@@ -146,10 +145,10 @@ public class Game {
 
     public void boardTableTestCase(int testCase) {
 
+        // Przypadki testowe
         switch (testCase) {
             case 1:
                 // nowe rozdanie
-
                 break;
             case 2:
                 // bicie przez biały pionek do przodu
@@ -163,167 +162,86 @@ public class Game {
                 pawnsBlack[19 - 13].setPosX(5);
                 pawnsBlack[19 - 13].setPosY(4);
                 break;
-//            case 3:
-//                // bicie przez biały pionek do tyłu
-//                boardTable[7][2] = 0;
-//                boardTable[5][4] = 12;
-//                pawnsWhite[11].setPosX(5);
-//                pawnsWhite[11].setPosY(4);
-//
-//                boardTable[4][5] = 0;
-//                boardTable[6][3] = 19;
-//                pawnsBlack[19 - 13].setPosX(6);
-//                pawnsBlack[19 - 13].setPosY(3);
-//                break;
-//            case 4:
-//                // bicie przez biała damkę do przodu
-//                pawnsWhite[11].setCrownhead(true);
-//
-//                boardTable[4][5] = 0;
-//                boardTable[5][4] = 19;
-//                pawnsBlack[19 - 13].setPosX(5);
-//                pawnsBlack[19 - 13].setPosY(4);
-//                break;
-//            case 5:
-//                // bicie wielokrotne przez biała damkę
-//                pawnsWhite[11].setCrownhead(true);
-//
-//                boardTable[4][5] = 0;
-//                boardTable[5][4] = 19;
-//                pawnsBlack[19 - 13].setPosX(5);
-//                pawnsBlack[19 - 13].setPosY(4);
-//                boardTable[2][5] = 0;
-//                boardTable[3][4] = 16;
-//                pawnsBlack[19 - 16].setPosX(3);
-//                pawnsBlack[19 - 16].setPosY(4);
-//                break;
-//            case 6:
-//                // bicie wielokrotne przez biała pion
-//                boardTable[7][2] = 0;
-//                boardTable[6][3] = 12;
-//                pawnsWhite[11].setPosX(6);
-//                pawnsWhite[11].setPosY(3);
-//
-//                boardTable[4][5] = 0;
-//                boardTable[5][4] = 19;
-//                pawnsBlack[19 - 13].setPosX(5);
-//                pawnsBlack[19 - 13].setPosY(4);
-//                boardTable[2][5] = 0;
-//                boardTable[3][4] = 16;
-//                pawnsBlack[19 - 16].setPosX(3);
-//                pawnsBlack[19 - 16].setPosY(4);
-//                break;
-//            case 7:
-//                // wszystkie czarne możliwe do zbicia
-//                boardTable[0][5] = 0;
-//                pawnsBlack[13 - 13].setActive(false);
-//                boardTable[0][7] = 0;
-//                pawnsBlack[14 - 13].setActive(false);
-//                boardTable[2][7] = 0;
-//                pawnsBlack[17 - 13].setActive(false);
-//                boardTable[4][5] = 0;
-//                pawnsBlack[19 - 13].setActive(false);
-//                boardTable[4][7] = 0;
-//                pawnsBlack[20 - 13].setActive(false);
-//                boardTable[6][7] = 0;
-//                pawnsBlack[23 - 13].setActive(false);
-//                boardTable[7][6] = 0;
-//                pawnsBlack[24 - 13].setActive(false);
-//                numberPawnsBlack -= 7;
-//                break;
-//            case 8:
-//                // wszystkie czarne możliwe do zbicia
-//                boardTable[0][5] = 0;
-//                pawnsBlack[13 - 13].setActive(false);
-//                boardTable[0][7] = 0;
-//                pawnsBlack[14 - 13].setActive(false);
-//                boardTable[2][7] = 0;
-//                pawnsBlack[15 - 13].setActive(false);
-//                boardTable[1][6] = 0;
-//                pawnsBlack[16 - 13].setActive(false);
-//                boardTable[2][5] = 0;
-//                pawnsBlack[17 - 13].setActive(false);
-//                boardTable[4][5] = 0;
-//                pawnsBlack[18 - 13].setActive(false);
-//                boardTable[3][6] = 0;
-//                pawnsBlack[19 - 13].setActive(false);
-//                boardTable[4][7] = 0;
-//                pawnsBlack[20 - 13].setActive(false);
-//                boardTable[6][7] = 0;
-//                pawnsBlack[23 - 13].setActive(false);
-//                boardTable[7][6] = 0;
-//                pawnsBlack[24 - 13].setActive(false);
-//                numberPawnsBlack -= 10;
-//                boardTable[5][2] = 0;
-//                boardTable[4][5] = 9;
-//                pawnsWhite[9 - 1].setPosX(4);
-//                pawnsWhite[9 - 1].setPosY(5);
-//                break;
-//            case 9:
-//                // czarny pinek nie ma możliwości ruch
-//                boardTable[0][5] = 0;
-//                pawnsBlack[13 - 13].setActive(false);
-//                boardTable[0][7] = 0;
-//                pawnsBlack[14 - 13].setActive(false);
-//                boardTable[2][7] = 0;
-//                pawnsBlack[15 - 13].setActive(false);
-//                boardTable[1][6] = 0;
-//                pawnsBlack[16 - 13].setActive(false);
-//                boardTable[2][5] = 0;
-//                pawnsBlack[17 - 13].setActive(false);
-//                boardTable[4][5] = 0;
-//                pawnsBlack[18 - 13].setActive(false);
-//                boardTable[3][6] = 0;
-//                pawnsBlack[19 - 13].setActive(false);
-//                boardTable[4][7] = 0;
-//                pawnsBlack[20 - 13].setActive(false);
-//                boardTable[6][7] = 0;
-//                pawnsBlack[21 - 13].setActive(false);
-//                boardTable[5][6] = 0;
-//                pawnsBlack[22 - 13].setPosX(0);
-//                pawnsBlack[22 - 13].setPosY(3);
-//                boardTable[6][5] = 0;
-//                boardTable[0][3] = 22;
-//                pawnsBlack[23 - 13].setActive(false);
-//                boardTable[7][6] = 0;
-//                pawnsBlack[24 - 13].setActive(false);
-//                numberPawnsBlack -= 11;
-//                break;
-//            case 10:
-//                // 1 czarny pinek z możliwością ruchu tylko w kierunku NW
-//                boardTable[0][5] = 0;
-//                pawnsBlack[13 - 13].setActive(false);
-//                boardTable[0][7] = 0;
-//                pawnsBlack[14 - 13].setActive(false);
-//                boardTable[2][7] = 0;
-//                pawnsBlack[15 - 13].setActive(false);
-//                boardTable[1][6] = 0;
-//                pawnsBlack[16 - 13].setActive(false);
-//                boardTable[2][5] = 0;
-//                pawnsBlack[17 - 13].setActive(false);
-//                boardTable[4][5] = 0;
-//                pawnsBlack[18 - 13].setActive(false);
-//                boardTable[3][6] = 0;
-//                pawnsBlack[19 - 13].setActive(false);
-//                boardTable[4][7] = 0;
-//                pawnsBlack[20 - 13].setActive(false);
-//                boardTable[5][6] = 0;
-//                pawnsBlack[21 - 13].setActive(false);
-//                boardTable[6][7] = 0;
-//                boardTable[6][5] = 0;
-//                boardTable[6][3] = 22;
-//                pawnsBlack[22 - 13].setPosX(6);
-//                pawnsBlack[22 - 13].setPosY(3);
-//                pawnsBlack[23 - 13].setActive(false);
-//                boardTable[7][6] = 0;
-//                pawnsBlack[24 - 13].setActive(false);
-//                numberPawnsBlack -= 11;
-//                boardTable[5][2] = 0;
-//                boardTable[3][4] = 9;
-//                pawnsWhite[9 - 1].setPosX(3);
-//                pawnsWhite[9 - 1].setPosY(4);
-//                pawnsWhite[9 - 1].setCrownhead(true);
-//                break;
+            case 3:
+                // bicie przez biały pionek do tyłu
+                boardTable[7][2] = 0;
+                boardTable[5][4] = 12;
+                pawnsWhite[11].setPosX(5);
+                pawnsWhite[11].setPosY(4);
+
+                boardTable[4][5] = 0;
+                boardTable[6][3] = 19;
+                pawnsBlack[19 - 13].setPosX(6);
+                pawnsBlack[19 - 13].setPosY(3);
+                break;
+            case 4:
+                // bicie przez biała damkę do przodu
+                pawnsWhite[11].setCrownhead(true);
+
+                boardTable[4][5] = 0;
+                boardTable[5][4] = 19;
+                pawnsBlack[19 - 13].setPosX(5);
+                pawnsBlack[19 - 13].setPosY(4);
+                break;
+            case 5:
+                // bicie wielokrotne przez biała damkę
+                pawnsWhite[11].setCrownhead(true);
+
+                boardTable[4][5] = 0;
+                boardTable[5][4] = 19;
+                pawnsBlack[19 - 13].setPosX(5);
+                pawnsBlack[19 - 13].setPosY(4);
+                boardTable[2][5] = 0;
+                boardTable[3][4] = 16;
+                pawnsBlack[19 - 16].setPosX(3);
+                pawnsBlack[19 - 16].setPosY(4);
+                break;
+            case 6:
+                // bicie wielokrotne przez biały pion
+                boardTable[7][2] = 0;
+                boardTable[6][3] = 12;
+                pawnsWhite[11].setPosX(6);
+                pawnsWhite[11].setPosY(3);
+
+                boardTable[4][5] = 0;
+                boardTable[5][4] = 19;
+                pawnsBlack[19 - 13].setPosX(5);
+                pawnsBlack[19 - 13].setPosY(4);
+                boardTable[2][5] = 0;
+                boardTable[3][4] = 16;
+                pawnsBlack[19 - 16].setPosX(3);
+                pawnsBlack[19 - 16].setPosY(4);
+                break;
+            case 7:
+                // czarny pinek nie ma możliwości ruch
+                boardTable[0][5] = 0;
+                pawnsBlack[13 - 13].setActive(false);
+                boardTable[0][7] = 0;
+                pawnsBlack[14 - 13].setActive(false);
+                boardTable[2][7] = 0;
+                pawnsBlack[15 - 13].setActive(false);
+                boardTable[1][6] = 0;
+                pawnsBlack[16 - 13].setActive(false);
+                boardTable[2][5] = 0;
+                pawnsBlack[17 - 13].setActive(false);
+                boardTable[4][5] = 0;
+                pawnsBlack[18 - 13].setActive(false);
+                boardTable[3][6] = 0;
+                pawnsBlack[19 - 13].setActive(false);
+                boardTable[4][7] = 0;
+                pawnsBlack[20 - 13].setActive(false);
+                boardTable[6][7] = 0;
+                pawnsBlack[21 - 13].setActive(false);
+                boardTable[5][6] = 0;
+                pawnsBlack[22 - 13].setPosX(0);
+                pawnsBlack[22 - 13].setPosY(3);
+                boardTable[6][5] = 0;
+                boardTable[0][3] = 22;
+                pawnsBlack[23 - 13].setActive(false);
+                boardTable[7][6] = 0;
+                pawnsBlack[24 - 13].setActive(false);
+                numberPawnsBlack -= 11;
+                break;
         }
         printBoard("BoardTable", boardTable);
         System.out.println();
