@@ -40,9 +40,9 @@ public class Logic {
     private final int SOUTH_EAST = 20;
     private final int SOUTH_WEST = 40;
     private final int NO_CROSSING = -1;
-    private int boardSize;
-    private int MAX_X;
-    private int MAX_Y;
+    private final int boardSize;
+    private final int MAX_X;
+    private final int MAX_Y;
 
     public Logic(int boardSize) {
         this.boardSize = boardSize;
@@ -71,7 +71,7 @@ public class Logic {
         }
 
         // If final field is out of board
-        if (stopPosX < 0 || stopPosX > MAX_X || stopPosY < 0 || stopPosY > MAX_Y) {
+        if (stopPosX > MAX_X || stopPosY > MAX_Y) {
             return new ArrayList<>(moveAllowedTable);
         }
 
@@ -127,16 +127,6 @@ public class Logic {
             return new ArrayList<>(moveAllowedTable);
         }
 
-
-
-//        // Movement of crownhead with capture
-//        if ((pawnColor == WHITE_CROWNHEAD || pawnColor == BLACK_CROWNHEAD) &
-//                isFreeFields(startPosX, startPosY, direction, (distance - 2)) &
-//                isOpponentsPawn(startPosX, stopPosY, direction, (distance - 1))) {
-//            moveAllowedTable.add(new Movement(startPosX, startPosY, stopPosX, stopPosY, crossingX, crossingY));
-//            return new ArrayList<>(moveAllowedTable);
-//        }
-
         // Movement of crownhead with capture
         if (pawnColor == WHITE_CROWNHEAD || pawnColor == BLACK_CROWNHEAD) {
             int numberOfOpponetsPawn = 0;
@@ -162,8 +152,8 @@ public class Logic {
     public List<Movement> pawnPossibleCaptures(int startPosX, int startPosY) {
 
         List<Movement> pawnPossibleCapturesTable = new ArrayList<>();
-        int crossingX = NO_CROSSING;
-        int crossingY = NO_CROSSING;
+        int crossingX;
+        int crossingY;
 
         boolean crownhead = false;
         if ((logicBoardTable[startPosX][startPosY] == WHITE_CROWNHEAD) ||
@@ -193,7 +183,7 @@ public class Logic {
                 // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
                 // zatrzymać się bijąca damka
                 if (crownhead) {
-                    int maxFreeFieldsAfterCrossing = 0;
+                    int maxFreeFieldsAfterCrossing;
                     int freeFieldsAfterCrossing = 1;
                     if (startPosX < startPosY) {
                         maxFreeFieldsAfterCrossing = startPosX - (2 + freeFields);
@@ -229,7 +219,7 @@ public class Logic {
                 // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
                 // zatrzymać się bijąca damka
                 if (crownhead) {
-                    int maxFreeFieldsAfterCrossing = 0;
+                    int maxFreeFieldsAfterCrossing;
                     int freeFieldsAfterCrossing = 1;
                     if (startPosX > startPosY) {
                         maxFreeFieldsAfterCrossing = MAX_X - (startPosX + (2 + freeFields));
@@ -266,7 +256,7 @@ public class Logic {
                 // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
                 // zatrzymać się bijąca damka
                 if (crownhead) {
-                    int maxFreeFieldsAfterCrossing = 0;
+                    int maxFreeFieldsAfterCrossing;
                     int freeFieldsAfterCrossing = 1;
                     if (startPosX > startPosY) {
                         maxFreeFieldsAfterCrossing = MAX_X - (startPosX + (2 + freeFields));
@@ -302,7 +292,7 @@ public class Logic {
                 // Sprawdzenie czy za zbitym pionkiem/damką nie ma dodatkowych wolnych pól na których może
                 // zatrzymać się bijąca damka
                 if (crownhead) {
-                    int maxFreeFieldsAfterCrossing = 0;
+                    int maxFreeFieldsAfterCrossing;
                     int freeFieldsAfterCrossing = 1;
                     if (startPosX < startPosY) {
                         maxFreeFieldsAfterCrossing = startPosX - (2 + freeFields);
@@ -354,30 +344,19 @@ public class Logic {
 
     public boolean isOtherPawnMustBeMove(int pawnColor, int startPosX, int startPosY) {
 
-        List<Movement> allPawnCaptureTable = new ArrayList<>();
-        List<Movement> currentPawnCaptureTable = new ArrayList<>();
-
-        boolean otherPawnMustBeMove = true;
-
-        // spradzenie czy jakikolwiek pion o dany kolorze ma bicie ma bicie
-        allPawnCaptureTable.addAll(playerPossibleCaptures(pawnColor));
+        // spradzenie czy jakikolwiek pion o dany kolorze ma bicie
+        List<Movement> allPawnCaptureTable = new ArrayList<>(playerPossibleCaptures(pawnColor));
         if ((allPawnCaptureTable.size() == 0) && isPawnHaveFreeSpace(startPosX, startPosY)) {
-            otherPawnMustBeMove = false;
-            return otherPawnMustBeMove;
+            return false;
         } else {
             // sprawdzenie czy wybrany pion ma bicie
-            currentPawnCaptureTable.addAll(pawnPossibleCaptures(startPosX, startPosY));
-            if (currentPawnCaptureTable.size() > 0) {
-                otherPawnMustBeMove = false;
-                return otherPawnMustBeMove;
-            }
+            List<Movement> currentPawnCaptureTable = new ArrayList<>(pawnPossibleCaptures(startPosX, startPosY));
+            return currentPawnCaptureTable.size() == 0;
         }
-        return otherPawnMustBeMove;
     }
 
     public boolean isPawnHaveFreeSpace(int startPosX, int startPosY) {
 
-        boolean pawnHaveFreeSpace = false;
         int pawn = logicBoardTable[startPosX][startPosY];
 
         // Sprawdzanie czy ruch wypadnie na planszy
@@ -387,42 +366,37 @@ public class Logic {
         if ((startPosX >= 1) && (startPosY >= 1) &&
                 (pawn == BLACK_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, NORTH_WEST, 1)) {
-            pawnHaveFreeSpace = true;
-            return pawnHaveFreeSpace;
+            return true;
         }
 
         // NORTH_EAST
         if ((startPosX <= (MAX_X - 1)) && (startPosY >= 1) &&
                 (pawn == BLACK_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, NORTH_EAST, 1)) {
-            pawnHaveFreeSpace = true;
-            return pawnHaveFreeSpace;
+            return true;
         }
 
         // SOUTH_EAST
         if ((startPosX <= (MAX_X - 1)) && (startPosY <= (MAX_Y - 1)) &&
                 (pawn == WHITE_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, SOUTH_EAST, 1)) {
-            pawnHaveFreeSpace = true;
-            return pawnHaveFreeSpace;
+            return true;
         }
 
         // SOUTH_WEST
         if ((startPosX >= 1) && (startPosY <= (MAX_Y - 1)) &&
                 (pawn == WHITE_PAWN || pawn == WHITE_CROWNHEAD || pawn == BLACK_CROWNHEAD) &&
                 isFreeFields(startPosX, startPosY, SOUTH_WEST, 1)) {
-            pawnHaveFreeSpace = true;
-            return pawnHaveFreeSpace;
+            return true;
         }
 
-        return pawnHaveFreeSpace;
+        return false;
     }
 
     public boolean isOpponentsPawn(int startPosX, int startPosY, int direction, int distance) {
 
-        boolean opponetsPawn = false;
         if (distance == 0) {
-            return opponetsPawn;
+            return false;
         }
 
         if (logicBoardTable[startPosX][startPosY] == WHITE_PAWN ||
@@ -432,28 +406,28 @@ public class Logic {
                     if (startPosX >= distance && startPosY >= distance &&
                             (logicBoardTable[startPosX - distance][startPosY - distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY - distance] == BLACK_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
                 case NORTH_EAST:
                     if (startPosX <= (MAX_X - distance) && startPosY >= distance &&
                             (logicBoardTable[startPosX + distance][startPosY - distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY - distance] == BLACK_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
                 case SOUTH_EAST:
                     if (startPosX <= (MAX_X - distance) && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX + distance][startPosY + distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY + distance] == BLACK_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
                 case SOUTH_WEST:
                     if (startPosX >= distance && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX - distance][startPosY + distance] == BLACK_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY + distance] == BLACK_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
             }
@@ -466,41 +440,40 @@ public class Logic {
                     if (startPosX >= distance && startPosY >= distance &&
                             (logicBoardTable[startPosX - distance][startPosY - distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY - distance] == WHITE_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
                 case NORTH_EAST:
                     if (startPosX <= (MAX_X - distance) && startPosY >= distance &&
                             (logicBoardTable[startPosX + distance][startPosY - distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY - distance] == WHITE_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
                 case SOUTH_EAST:
                     if (startPosX <= (MAX_X - distance) && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX + distance][startPosY + distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX + distance][startPosY + distance] == WHITE_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
                 case SOUTH_WEST:
                     if (startPosX >= distance && startPosY <= (MAX_Y - distance) &&
                             (logicBoardTable[startPosX - distance][startPosY + distance] == WHITE_PAWN ||
                                     logicBoardTable[startPosX - distance][startPosY + distance] == WHITE_CROWNHEAD)) {
-                        opponetsPawn = true;
+                        return true;
                     }
                     break;
             }
         }
 
-        return opponetsPawn;
+        return false;
     }
 
     public boolean isFreeFields(int startPosX, int startPosY, int direction, int distance) {
 
-        boolean freeFields = true;
         if (distance == 0) {
-            return freeFields;
+            return true;
         }
 
         for (int i = 1; i <= distance; i++) {
@@ -508,41 +481,38 @@ public class Logic {
                 case NORTH_WEST:
                     if (startPosX >= i && startPosY >= i &&
                             logicBoardTable[startPosX - i][startPosY - i] != FREE_FIELD) {
-                        freeFields = false;
+                        return false;
                     }
                     break;
                 case NORTH_EAST:
                     if (startPosX <= (MAX_X - i) && startPosY >= i &&
                             logicBoardTable[startPosX + i][startPosY - i] != FREE_FIELD) {
-                        freeFields = false;
+                        return false;
                     }
                     break;
                 case SOUTH_EAST:
                     if (startPosX <= (MAX_X - i) && startPosY <= (MAX_Y - i) &&
                             logicBoardTable[startPosX + i][startPosY + i] != FREE_FIELD) {
-                        freeFields = false;
+                        return false;
                     }
                     break;
                 case SOUTH_WEST:
                     if (startPosX >= i && startPosY <= (MAX_Y - i) &&
                             logicBoardTable[startPosX - i][startPosY + i] != FREE_FIELD) {
-                        freeFields = false;
+                        return false;
                     }
                     break;
             }
         }
 
-        return freeFields;
+        return true;
     }
 
     public boolean isPlayerHaVeNoMove(int pawnColor) {
-        boolean playerHaveNoMove = true;
-        List<Movement> playerMovementTable = new ArrayList<>();
-        playerMovementTable.clear();
-        playerMovementTable.addAll(playerPossibleCaptures(pawnColor));
+
+        List<Movement> playerMovementTable = new ArrayList<>(playerPossibleCaptures(pawnColor));
         if (playerMovementTable.size() > 0) {
-            playerHaveNoMove = false;
-            return playerHaveNoMove;
+            return false;
         }
 
         for (int j = 0; j <= MAX_Y; j++) {
@@ -550,34 +520,30 @@ public class Logic {
                 if ((pawnColor == WHITE_PAWN) &&
                         (logicBoardTable[i][j] == WHITE_PAWN || logicBoardTable[i][j] == WHITE_CROWNHEAD) &&
                         (isPawnHaveFreeSpace(i, j))) {
-                    playerHaveNoMove = false;
-                    return playerHaveNoMove;
+                    return false;
                 }
                 if ((pawnColor == BLACK_PAWN) &&
                         (logicBoardTable[i][j] == BLACK_PAWN || logicBoardTable[i][j] == BLACK_CROWNHEAD)) {
                     if (isPawnHaveFreeSpace(i, j)) {
-                        playerHaveNoMove = false;
-                        return playerHaveNoMove;
+                        return false;
                     }
                 }
             }
         }
-        return playerHaveNoMove;
+        return true;
     }
 
     public List<Movement> computerSillyMove() {
         List<Movement> computerMove = new ArrayList<>();
-        List<Movement> possibleMove = new ArrayList<>();
         Random generator = new Random();
-        int startX = -1;
-        int startY = -1;
-        int stopX = -1;
-        int stopY = -1;
-        int crossingX = -1;
-        int crossingY = -1;
-        int distance = -1;
+        int startX;
+        int startY;
+        int stopX;
+        int stopY;
+        int crossingX;
+        int crossingY;
+        int distance;
 
-        int theMove;
         int[][] tempLogicBoardTable = new int[boardSize][boardSize];
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
@@ -586,12 +552,11 @@ public class Logic {
         }
 
         // Jeśli komputer ma bicie
-        possibleMove.addAll(playerPossibleCaptures(BLACK_PAWN));
+        List<Movement> possibleMove = new ArrayList<>(playerPossibleCaptures(BLACK_PAWN));
 
         if (possibleMove.size() > 0) {
             // wybór losoweg ruchu
-            theMove = generator.nextInt(possibleMove.size());
-            computerMove.add(possibleMove.get(theMove));
+            computerMove.add(possibleMove.get(generator.nextInt(possibleMove.size())));
             // Sprawdzenie czy nie ma dalszego bicia przez ten pionek
             do {
                 startX = computerMove.get(computerMove.size() - 1).startX;
@@ -611,9 +576,7 @@ public class Logic {
                 possibleMove.addAll(pawnPossibleCaptures(startX, startY));
                 if (possibleMove.size() > 0) {
                     // wybór losoweg ruchu
-                    theMove = generator.nextInt(possibleMove.size());
-                    computerMove.add(possibleMove.get(theMove));
-                    System.out.println("Komputer ma bicie");
+                    computerMove.add(possibleMove.get(generator.nextInt(possibleMove.size())));
                 }
             } while (possibleMove.size() != 0);
             logicBoardTable = tempLogicBoardTable;
@@ -630,20 +593,16 @@ public class Logic {
 
                     if (logicBoardTable[i][j] == BLACK_CROWNHEAD) {
                         distance = MAX_X - 1;
-                        System.out.println("distance = " + distance);
                     } else {
                         distance = 1;
-                        System.out.println("distance = " + distance);
                     }
 
                     do {
                         // NW
-                        printLogicBoardTable("dupa");
                         if ((startX - distance >= 0) && (startY - distance >= 0) &&
                                 isFreeFields(startX, startY, NORTH_WEST, distance)) {
                             possibleMove.add(new Movement(startX, startY,
                                     startX - distance, startY - distance, NO_CROSSING, NO_CROSSING));
-                            System.out.println("computerMove NW= " + possibleMove.size());
                             for (Movement currentMove : possibleMove) {
                                 System.out.println("NW" + currentMove);
                             }
@@ -653,7 +612,6 @@ public class Logic {
                                 isFreeFields(startX, startY, NORTH_EAST, distance)) {
                             possibleMove.add(new Movement(startX, startY,
                                     startX + distance, startY - distance, NO_CROSSING, NO_CROSSING));
-                            System.out.println("computerMove NE= " + possibleMove.size());
                             for (Movement currentMove : possibleMove) {
                                 System.out.println("NW" + currentMove);
                             }
@@ -664,7 +622,6 @@ public class Logic {
                                 isFreeFields(startX, startY, SOUTH_EAST, distance)) {
                             possibleMove.add(new Movement(startX, startY,
                                     startX + distance, startY + distance, NO_CROSSING, NO_CROSSING));
-                            System.out.println("computerMove SE= " + possibleMove.size());
                             for (Movement currentMove : possibleMove) {
                                 System.out.println(currentMove);
                             }
@@ -675,7 +632,6 @@ public class Logic {
                                 isFreeFields(startX, startY, SOUTH_WEST, distance)) {
                             possibleMove.add(new Movement(startX, startY,
                                     startX - distance, startY + distance, NO_CROSSING, NO_CROSSING));
-                            System.out.println("computerMove SW= " + possibleMove.size());
                             for (Movement currentMove : possibleMove) {
                                 System.out.println(currentMove);
                             }
@@ -687,13 +643,11 @@ public class Logic {
             }
         }
         // wybór losoweg ruchu computera bez bicia
-        System.out.println("Możliwe ruchy bez bicia = " + possibleMove.size());
         if (possibleMove.size() > 0) {
             for (Movement currentMove : possibleMove) {
                 System.out.println(currentMove);
             }
-            theMove = generator.nextInt(possibleMove.size());
-            computerMove.add(possibleMove.get(theMove));
+            computerMove.add(possibleMove.get(generator.nextInt(possibleMove.size())));
         }
 
         return new ArrayList<>(computerMove);
@@ -712,12 +666,6 @@ public class Logic {
             }
             System.out.println();
         }
-    }
-
-    public List<Movement> computerMove() {
-        List<Movement> computerMoveTable = new ArrayList<>();
-
-        return new ArrayList<>(computerMoveTable);
     }
 
 }

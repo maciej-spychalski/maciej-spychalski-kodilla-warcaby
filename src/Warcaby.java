@@ -14,30 +14,28 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.io.FileNotFoundException;
-
 public class Warcaby extends Application {
-    private Group root = new Group();
-    private Scene scene = new Scene(root, 800, 600);
-    private Rectangle[][] cellRectangle = new Rectangle[8][8];
-    private Group cells = new Group();
-    private Label statement = new Label();
-    private Button startBtn = new Button();
-    private TextArea textArea = new TextArea();
+    private final Group root = new Group();
+    private final Scene scene = new Scene(root, 800, 600);
+    private final Rectangle[][] cellRectangle = new Rectangle[8][8];
+    private final Group cells = new Group();
+    private final Label statement = new Label();
+    private final Button startBtn = new Button();
+    private final TextArea textArea = new TextArea();
 
     private ImageView[] imageViewBlack;
     private ImageView[] imageViewWhite;
-    private Game game = new Game();
+    private final Game game = new Game();
     // Odległość planszy od krawędzi
-    private int x0 = 40;
-    private int y0 = 40;
-    private int squaresSize = (int) (scene.getHeight() - 2 * y0) / 8;
+    private final int x0 = 40;
+    private final int y0 = 40;
+    private final int squaresSize = (int) (scene.getHeight() - 2 * y0) / 8;
 
     public static void main(String[] args) {
         launch(args);
     }
 
-    public void creatBoard() {
+    public void createBoard() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 cellRectangle[i][j] = new Rectangle(x0 + i * squaresSize, y0 + j * squaresSize,
@@ -79,7 +77,7 @@ public class Warcaby extends Application {
         root.getChildren().add(labelH);
     }
 
-    public void creatPawnsImage() throws FileNotFoundException {
+    public void createPawnsImage() {
 
         imageViewBlack = new ImageView[12];
         imageViewWhite = new ImageView[12];
@@ -91,7 +89,7 @@ public class Warcaby extends Application {
         }
     }
 
-    public void creatGameInterface() {
+    public void createGameInterface() {
         // Pole historii posunięć
         textArea.setEditable(false);
         textArea.setFont(Font.font(14));
@@ -174,19 +172,19 @@ public class Warcaby extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws FileNotFoundException {
+    public void start(Stage primaryStage) {
 
         // Rysowanie pól
-        creatBoard();
+        createBoard();
 
         // Tworzenie obrazów pionów
-        creatPawnsImage();
+        createPawnsImage();
 
         // Rysowanie pionków
         drawPawns();
 
         // Tworzenie pozostałych elementów layoutu
-        creatGameInterface();
+        createGameInterface();
 
         // Głowne okno aplikacji
         primaryStage.setTitle("Warcaby");
@@ -209,13 +207,13 @@ public class Warcaby extends Application {
         scene.addEventFilter(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                int ix = 0;
-                int iy = 0;
+                int ix;
+                int iy;
                 if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8 * squaresSize) &&
                         mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8 * squaresSize)) {
                     ix = ((int) mouseEvent.getX() - x0) / squaresSize;
                     iy = ((int) mouseEvent.getY() - y0) / squaresSize;
-                    statement.setText("Pole: " + Character.toString((char) (65 + ix)) + (iy + 1));
+                    statement.setText("Pole: " + ((char) (65 + ix)) + (iy + 1));
                 } else {
                     statement.setText("");
                 }
@@ -227,13 +225,13 @@ public class Warcaby extends Application {
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                int ix = 0;
-                int iy = 0;
+                int ix;
+                int iy;
                 if (mouseEvent.getX() > x0 && mouseEvent.getX() < (x0 + 8 * squaresSize) &&
                         mouseEvent.getY() > y0 && mouseEvent.getY() < (y0 + 8 * squaresSize)) {
                     ix = ((int) mouseEvent.getX() - x0) / squaresSize;
                     iy = ((int) mouseEvent.getY() - y0) / squaresSize;
-                    System.out.println("Zazanaczyłeś pole : " + Character.toString((char) (65 + ix)) + (iy + 1));
+                    System.out.println("Zazanaczyłeś pole : " + ((char) (65 + ix)) + (iy + 1));
 
                     // Przesuwanie pionka
                     if (game.isGameInProgress()) {

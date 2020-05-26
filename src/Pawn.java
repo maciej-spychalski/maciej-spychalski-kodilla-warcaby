@@ -1,14 +1,9 @@
 import javafx.scene.image.Image;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-
 public class Pawn {
-    private int id;
     private boolean active;
     private boolean crownhead;
     private boolean selected;
-    private Image image;
     private int posX;
     private int posY;
 
@@ -21,8 +16,7 @@ public class Pawn {
     public static Image whiteCrownhead = new Image("file:resources/white_piece_with_crown.png");
     public static Image whiteCrownheadSelected = new Image("file:resources/white_piece_with_crown_selected.png");
 
-    public Pawn (int id, boolean active, boolean crownhead, boolean selected, Image image, int posX, int posY) {
-        this.id = id;
+    public Pawn (boolean active, boolean crownhead, boolean selected, int posX, int posY) {
         this.active = active;
         this.crownhead = crownhead;
         this.selected = selected;
@@ -70,7 +64,4 @@ public class Pawn {
         this.selected = selected;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
-    }
 }
